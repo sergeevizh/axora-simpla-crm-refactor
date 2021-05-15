@@ -1,0 +1,7 @@
+DirectoryIndex index.php
+
+AddType application/octet-stream csv
+AuthName "Админ-панель"
+AuthType Basic
+AuthUserFile /home1/lrogiixt/public_html/simpla-sceleton/admin/.passwd
+require valid-user

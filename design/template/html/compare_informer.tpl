@@ -1,0 +1,1 @@
+{$compares|count}<span> {$compares|count|plural:'товар':'товаров':'товара'}</span>

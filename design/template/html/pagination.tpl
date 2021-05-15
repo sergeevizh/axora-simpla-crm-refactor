@@ -1,0 +1,65 @@
+{* Постраничный вывод *}
+
+{if $total_pages_num>1}
+{* Скрипт для листания через ctrl → *}
+{* Ссылки на соседние страницы должны иметь id PrevLink и NextLink *}
+
+<!-- Листалка страниц -->
+<div class="pagination">
+	{* Количество выводимых ссылок на страницы *}
+	{$visible_pages = 11}
+
+	{* По умолчанию начинаем вывод со страницы 1 *}
+	{$page_from = 1}
+
+	{* Если выбранная пользователем страница дальше середины "окна" - начинаем вывод уже не с первой *}
+	{if $current_page_num > floor($visible_pages/2)}
+		{$page_from = max(1, $current_page_num-floor($visible_pages/2)-1)}
+	{/if}
+
+	{* Если выбранная пользователем страница близка к концу навигации - начинаем с "конца-окно" *}
+	{if $current_page_num > $total_pages_num-ceil($visible_pages/2)}
+		{$page_from = max(1, $total_pages_num-$visible_pages-1)}
+	{/if}
+
+	{* До какой страницы выводить - выводим всё окно, но не более ощего количества страниц *}
+	{$page_to = min($page_from+$visible_pages, $total_pages_num-1)}
+
+	{if $current_page_num==2}
+		<a  href="{url page=null}" class="pagination__arrow pagination__arrow_prev">&lsaquo;</a>
+		{$prev="{url page=null}" scope=root}
+	{/if}
+	{if $current_page_num>2}
+		<a href="{url page=$current_page_num-1}" class="pagination__arrow pagination__arrow_prev">&lsaquo;</a>
+		{$prev="{url page=$current_page_num-1}" scope=root}
+	{/if}
+
+	{* Ссылка на 1 страницу отображается всегда *}
+	<a href="{url page=null}" class="pagination__link {if $current_page_num==1}is-active{/if}">1</a>
+
+
+	{* Выводим страницы нашего "окна" *}
+	{section name=pages loop=$page_to start=$page_from}
+		{* Номер текущей выводимой страницы *}
+		{$p = $smarty.section.pages.index+1}
+		{* Для крайних страниц "окна" выводим троеточие, если окно не возле границы навигации *}
+		{if ($p == $page_from+1 && $p!=2) || ($p == $page_to && $p != $total_pages_num-1)}
+		{* <a {if $p==$current_page_num}class="selected"{/if} href="{url page=$p}">...</a>*}
+			<span class="pagination__dott">...</span>
+		{else}
+			<a href="{url page=$p}" class="pagination__link {if $p==$current_page_num} is-active{/if} ">{$p}</a>
+		{/if}
+	{/section}
+
+	{* Ссылка на последнююю страницу отображается всегда *}
+	<a href="{url page=$total_pages_num}" class="pagination__link {if $current_page_num==$total_pages_num} is-active{/if} ">{$total_pages_num}</a>
+
+	{* <a href="{url page=all}">все сразу</a>*}
+	{if $current_page_num<$total_pages_num}
+		<a href="{url page=$current_page_num+1}" class="pagination__arrow pagination__arrow_next">&rsaquo;</a>
+		{$next="{url page=$current_page_num+1}" scope=root}
+	{/if}
+
+</div>
+<!-- Листалка страниц (The End) -->
+{/if}

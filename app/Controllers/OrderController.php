@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Controllers;
+
+class OrderController extends Controller
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->design->smarty->registerPlugin("function", "checkout_form", array($this, 'checkout_form'));
+    }
+
+
+    public function fetch()
+    {
+        // Скачивание файла
+        if ($this->request->get('file')) {
+            return $this->download();
+        } else {
+            return $this->fetch_order();
+
+        }
+
+
+    }
+
+    public function fetch_order()
+    {
+
+        if ($url = $this->request->get('url', 'string')) {
+            $order = $this->orders->get_order((string)$url);
+        } elseif (!empty($_SESSION['order_id'])) {
+            $order = $this->orders->get_order(intval($_SESSION['order_id']));
+        } else {
+            return false;
+        }
+
+        if (!$order) {
+            return false;
+        }
+
+        $purchases = $this->orders->get_purchases(array('order_id' => intval($order->id)));
+        if (!$purchases) {
+            return false;
+        }
+        if ($this->request->method('post')) {
+
+            if ($payment_method_id = $this->request->post('payment_method_id', 'integer')) {
+                $this->orders->update_order($order->id, array('payment_method_id' => $payment_method_id));
+                $order = $this->orders->get_order((integer)$order->id);
+            } elseif (isset($_POST['reset_payment_method'])) {
+
+                $this->orders->update_order($order->id, array('payment_method_id' => null));
+                $order = $this->orders->get_order((integer)$order->id);
+
+            }
+        }
+       
+        $products_ids = array();
+        foreach ($purchases as $purchase) {
+            $products_ids[] = $purchase->product_id;
+        }
+
+        $products = $this->products->get_products_compile(array('id' => $products_ids, 'limit' => count($products_ids)));
+
+        foreach ($purchases as &$purchase) {
+            if (!empty($products[$purchase->product_id])) {
+
+                $purchase->product = $products[$purchase->product_id];
+
+                if (!empty($products[$purchase->product_id]->variants[$purchase->variant_id])) {
+                    $purchase->variant = $products[$purchase->product_id]->variants[$purchase->variant_id];
+                }
+            }
+        }
+
+        // Способ доставки
+        $delivery = $this->delivery->get_delivery($order->delivery_id);
+        $this->design->assign('delivery', $delivery);
+
+        $this->design->assign('order', $order);
+        $this->design->assign('purchases', $purchases);
+
+        // Способ оплаты
+        if ($order->payment_method_id) {
+
+            $payment_method = $this->payment->get_payment_method($order->payment_method_id);
+            $this->design->assign('payment_method', $payment_method);
+        }
+
+        // Варианты оплаты
+        $payment_methods = $this->payment->get_payment_methods(array('delivery_id' => $order->delivery_id, 'enabled' => 1));
+        $this->design->assign('payment_methods', $payment_methods);
+
+
+        // Все валюты
+        $this->design->assign('all_currencies', $this->money->get_currencies());
+
+
+        // Выводим заказ
+        return $this->design->fetch('order.tpl');
+    }
+
+    private function download()
+    {
+        $file = $this->request->get('file');
+
+        if (!$url = $this->request->get('url', 'string')) {
+            return false;
+        }
+
+        $order = $this->orders->get_order((string)$url);
+        if (!$order) {
+            return false;
+        }
+
+        if (!$order->paid) {
+            return false;
+        }
+
+        // Проверяем, есть ли такой файл в покупках
+        $query = $this->db->placehold("SELECT p.id FROM __purchases p, __variants v WHERE p.variant_id=v.id AND p.order_id=? AND v.attachment=?", $order->id, $file);
+        $this->db->query($query);
+        if ($this->db->num_rows() == 0) {
+            return false;
+        }
+
+        header("Content-type: application/force-download");
+        header("Content-Disposition: attachment; filename=\"$file\"");
+        header("Content-Length: " . filesize($this->config->root_dir . $this->config->downloads_dir . $file));
+        readfile($this->config->root_dir . $this->config->downloads_dir . $file);
+
+        exit();
+    }
+
+    public function checkout_form($params, $smarty)
+    {
+
+        $module_name = preg_replace("/[^A-Za-z0-9]+/", "", $params['module']);
+
+        $form = '';
+        if (!empty($module_name) && is_file("payment/$module_name/$module_name.php")) {
+
+            $module = '\Payment\\' .$module_name . '\\' . $module_name;
+            $module = new $module();
+            $form = $module->checkout_form($params['order_id'], $params['button_text']);
+        }
+        return $form;
+    }
+}
