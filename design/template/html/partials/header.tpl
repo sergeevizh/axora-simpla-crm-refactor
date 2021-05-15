@@ -139,7 +139,7 @@
                                         <a href="{route('user')}" class="user-field__link link">{$user['name']}</a>
                                     </div>
                                     <div class="user-field__item">
-                                        <a onclick="document.getElementById('logout-form').submit();" href="#" class="user-field__link link" id="logout">выйти</a>
+                                        <a onclick="document.getElementById('logout-form').submit();" href="{$config->root_url}/user/logout" class="user-field__link link" id="logout">выйти</a>
                                         <form  style="display: none" id="logout-form" action="{route('user/logout')}" method="post">
                                             <button type="submit">logout</button>
                                         </form>

@@ -12,46 +12,37 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 class UserController extends Controller
 {
-    /**
-     * @var ContainerInterface
-     */
     private $container;
-
-    /**
-     * @var Design
-     */
     private $design;
-
-    /**
-     * @var IUserDBRepository
-     */
     private $userDBRepository;
 
     protected $middleware = ['auth'];
 
-    public function __construct(ContainerInterface $container, IUserDBRepository $userDBRepository, Design $design)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->userDBRepository = $userDBRepository;
-        $this->design = $design;
+        $this->userDBRepository = $container->get(IUserDBRepository::class);
+        $this->design = $container->get(Design::class);
     }
 
     public function index()
     {
         $this->design->assign('orders', []);
-        $this->design->assign('meta_title', auth()->user()['name']);
+        $this->design->assign('user', auth()->user());
 
         $this->design->render('user.tpl');
     }
 
     public function edit()
     {
-        dump($_SESSION);
+        $this->design->assign('user', auth()->user());
+
         $this->design->render('user-edit.tpl');
     }
 
     public function update(Request $request, Session $session)
     {
+
         $validation = makeValidation(
             $this->container->get(Validator::class),
             $request,
@@ -61,14 +52,13 @@ class UserController extends Controller
         if ($validation->errors()) {
             $session->set('errors', $validation->errors()->toArray());
             $session->set('old', $request->request->all());
-            back();
         }
-
         $this->userDBRepository->update(
             auth()->id(),
             $validation->getValidatedData()
         );
 
-        $this->design->render('user-edit.tpl');
+        return redirect('/user');
+//        $this->design->render('user-edit.tpl');
     }
 }

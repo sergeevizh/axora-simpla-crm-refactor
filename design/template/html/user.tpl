@@ -11,12 +11,12 @@
 
 	<div class="account">
 		<h3 class="account__title">Личные данные</h3>
-		<input type="hidden" name="id" value="{$user->id}">
-		<p><span id="current_user_name">{$user->name|escape}</span></p>
+		<input type="hidden" name="id" value="{$user['id']}">
+		<p><span id="current_user_name">{$user['name']}</span></p>
 		<p><strong>Телефон:</strong> <span
-					id="current_user_phone">{if $user->phone}{$user->phone|escape}{else}не указан{/if} </span></p>
-		<p><strong>Электронная почта:</strong> <span id="current_user_email">{$user->email|escape}</span></p>
-		<p><strong>Адрес:</strong> <span id="current_user_address">{if $user->address}{$user->address|escape} {else}не указан {/if}
+					id="current_user_phone">{if $user['phone']}{$user['phone']}{else}не указан{/if} </span></p>
+		<p><strong>Электронная почта:</strong> <span id="current_user_email">{$user['email']}</span></p>
+		<p><strong>Адрес:</strong> <span id="current_user_address">{if $user['address']}{$user['address']} {else}не указан {/if}
 		</p>
 
 		<div class="form-row">
@@ -26,7 +26,7 @@
 						Редактировать данные
 					</a>
 				</p>
-				{include file='partials/account-data-window.tpl'}
+{*				{include file='partials/account-data-window.tpl'}*}
 			</div>
 			<div class="col-auto">
 				<p>
@@ -37,7 +37,7 @@
 				{include file='partials/password-change-window.tpl'}
 			</div>
 			<div class="col-auto">
-				<p><a href="user/logout" class="btn btn-outline-secondary">Выйти</a></p>
+				<p><a href="{$config->root_url}/user/logout" class="btn btn-outline-secondary">Выйти</a></p>
 			</div>
 		</div>
 	</div>

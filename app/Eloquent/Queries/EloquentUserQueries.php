@@ -16,7 +16,7 @@ class EloquentUserQueries implements IUserDBRepository
 
     public function update(int $id, array $data): bool
     {
-        return User::whereId($id)->update($data);
+        return User::where('id', $id)->update($data);
     }
 
     public function destroy(int $id): bool

@@ -10,8 +10,9 @@ class UpdateUserRequest implements IRequestRules
     {
        return [
            'name' => 'required',
-           'address' => 'required',
            'email' => 'required|email',
+           'phone' => 'nullable',
+           'address' => 'nullable'
        ];
     }
 

@@ -10,6 +10,6 @@ class AuthController extends Controller
     {
         $session->clear();
 
-        return back();
+        return redirect('/');
     }
 }
