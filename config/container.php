@@ -74,4 +74,8 @@ return [
 
     IUserDBRepository::class => create(EloquentUserQueries::class),
     IAuthProvider::class => create(EloquentAuthProviderQueries::class),
+    \App\Repositories\IBannerDBRepository::class => create(\App\Eloquent\Queries\EloquentBannerQueries::class),
+    \App\Repositories\IProductDBRepository::class => create(\App\Eloquent\Queries\EloquentProductQueries::class),
+    \App\Repositories\IBlogDBRepository::class => create(\App\Eloquent\Queries\EloquentBlogQueries::class),
+
 ];

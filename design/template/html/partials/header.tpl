@@ -209,7 +209,7 @@
 
                         <a href="compares" class="control__btn control__btn_compare">
                             <span class="control__btn-icon"><i class="fal fa-balance-scale"></i></span>
-                            <span class="control__btn-count js-compares-informer">{$compares|count}</span>
+                            <span class="control__btn-count js-compares-informer">{if $compares}{$compares|count}{else}0{/if}</span>
                         </a>
 
                         <a href="/cart/" class="control__btn control__btn_basket">

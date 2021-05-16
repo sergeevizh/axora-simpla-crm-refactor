@@ -4,29 +4,29 @@
             {include file="partials/stickers.tpl"}
 
             <div class="item__control">
-                <button type="button" data-product-id="{$product->id}" class="favorite-btn js-add-favorites js-favorites-{$product->id} {if $favorites &&  in_array($product->id, $favorites)}is-active{/if} "><i class="fal fa-heart"></i></button>
+                <button type="button" data-product-id="{$product['id']}" class="favorite-btn js-add-favorites js-favorites-{$product['id']} {if $favorites &&  in_array($product['id'], $favorites)}is-active{/if} "><i class="fal fa-heart"></i></button>
 
                 {* если находимся на странице сравнения *}
                 {if $is_compares}
-                    <button type="button" class="remove-btn js-remove-compare js-remove-compare-{$product->id}  {if in_array($product->id, $compares)} is-active{/if}" data-product-id="{$product->id}"><i class="fal fa-times"></i></button>
+                    <button type="button" class="remove-btn js-remove-compare js-remove-compare-{$product['id']}  {if in_array($product['id'], $compares)} is-active{/if}" data-product-id="{$product['id']}"><i class="fal fa-times"></i></button>
                 {else}
-                    <button type="button" class="compare-btn js-add-compare js-add-compare-{$product->id} {if in_array($product->id, $compares)} is-active{/if}" data-product-id="{$product->id}"><i class="fal fa-balance-scale "></i></button>
+                    <button type="button" class="compare-btn js-add-compare js-add-compare-{$product['id']} {if in_array($product['id'], $compares)} is-active{/if}" data-product-id="{$product['id']}"><i class="fal fa-balance-scale "></i></button>
                 {/if}
             </div>
         </div>
 
-        <a href="products/{$product->url}" class="item__image-field">
-            {if $product->image}
-                <img src="{$product->image->filename|resize:242:230}" class="item__image" alt="{$product->name|escape}">
+        <a href="{$config->root_url}/products/{$product['url']}" class="item__image-field">
+            {if $product['image']}
+                <img src="{$product['image']->filename|resize:242:230}" class="item__image" alt="{$product['name']}">
             {else}
-                <img src="/files/uploads/no-image.png" class="item__image" alt="{$product->name|escape}">
+                <img src="{asset('no-image.png')}" class="item__image" alt="{$product['name']}">
             {/if}
         </a>
 
         <div class="item__meta">
             <div class="meta">
                 <div class="meta__item">
-                    {include file="partials/rating.tpl" is_product_card=true}
+                    {include file="{$config->root_url}partials/rating.tpl" is_product_card=true}
                 </div>
 
                 {*
@@ -40,7 +40,7 @@
         </div>
 
         <div class="item__title">
-            <a href="products/{$product->url}">{$product->name|escape}</a>
+            <a href="products/{$product->url}">{$product['name']}</a>
         </div>
     </div>
 

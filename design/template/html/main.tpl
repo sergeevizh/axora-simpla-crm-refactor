@@ -23,7 +23,7 @@
     {*    {get_new_products var=new_products }*}
     {if $new_products}
         <section class="catalog-slider-section">
-            <h2 class="catalog-slider-section__title"><a href="/new">Новинки</a></h2>
+            <h2 class="catalog-slider-section__title"><a href="{$config->root_url}/new">Новинки</a></h2>
             <div class="catalog-slider">
                 {foreach $new_products as $product}
                     <div class="catalog-slider__item">
@@ -37,7 +37,7 @@
     {*    {get_featured_products var=featured_products }*}
     {if $featured_products}
         <section class="catalog-slider-section">
-            <h2 class="catalog-slider-section__title"><a href="/featured">Популярное</a></h2>
+            <h2 class="catalog-slider-section__title"><a href="{$config->root_url}/featured">Популярное</a></h2>
             <div class="catalog-slider">
                 {foreach $featured_products as $product}
                     <div class="catalog-slider__item">
@@ -51,7 +51,7 @@
     {*    {get_posts var=posts limit=3}*}
     {if $posts}
         <section class="main-news-section">
-            <h2><a href="/blog">Новости</a></h2>
+            <h2><a href="{$config->root_url}/blog">Новости</a></h2>
             <div class="main-news-section__list row">
                 {include file="partials/blog_posts.tpl"}
             </div>
@@ -61,7 +61,7 @@
     {*    {get_discounted_products var=discounted_products limit=10 }*}
     {if $discounted_products}
         <section class="catalog-slider-section">
-            <h2 class="catalog-slider-section__title"><a href="/actions">Акции</a></h2>
+            <h2 class="catalog-slider-section__title"><a href="{$config->root_url}/actions">Акции</a></h2>
             <div class="catalog-slider">
                 {foreach $discounted_products as $product}
                     <div class="catalog-slider__item">
