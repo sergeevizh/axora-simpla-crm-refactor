@@ -4,15 +4,13 @@ namespace App\Api;
 
 class Colors extends Axora
 {
-
-    public function get_colors($filter = array())
+    public function get_colors($filter = [])
     {
         $category_id_filter = '';
         $visible_filter = '';
         $in_stock_filter = '';
         $group_by = '';
         $order = 'co.position';
-
 
         /*        $id_filter = '';
                 $category_id_filter = '';
@@ -25,10 +23,11 @@ class Colors extends Axora
 				LEFT JOIN __products_categories pc ON pc.product_id = pco.product_id WHERE pc.category_id in(?@)', (array)$filter['category_id']);
         }
 
-
         if (isset($filter['in_stock'])) {
-            $in_stock_filter = $this->db->placehold('AND (SELECT COUNT(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND pv.price>0 AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = ?',
-                intval($filter['in_stock']));
+            $in_stock_filter = $this->db->placehold(
+                'AND (SELECT COUNT(*)>0 FROM __variants pv WHERE pv.product_id=p.id AND pv.price>0 AND (pv.stock IS NULL OR pv.stock>0) LIMIT 1) = ?',
+                intval($filter['in_stock'])
+            );
         }
 
         if (isset($filter['visible'])) {
@@ -54,7 +53,6 @@ class Colors extends Axora
             $group_by = 'GROUP BY co.id';
         }
 
-
         $query = $this->db->placehold("SELECT co.*
 											FROM __colors co
 											$category_id_filter
@@ -66,13 +64,12 @@ class Colors extends Axora
         return $this->db->results();
     }
 
-
     public function get_color($id)
     {
         $this->db->query("SELECT * FROM __colors WHERE id = ? LIMIT 1", intval($id));
+
         return $this->db->result();
     }
-
 
     public function add_color($color)
     {
@@ -82,9 +79,9 @@ class Colors extends Axora
         $color['position'] = $this->db->result('max_position') + 1;
 
         $this->db->query("INSERT INTO __colors SET ?%", $color);
+
         return $this->db->insert_id();
     }
-
 
     public function update_color($id, $color)
     {
@@ -93,7 +90,6 @@ class Colors extends Axora
 
         return $id;
     }
-
 
     public function delete_color($id)
     {
@@ -104,9 +100,7 @@ class Colors extends Axora
             // удаляем с бД
             $this->db->query("DELETE FROM __colors WHERE id=? LIMIT 1", intval($id));
 
-
             $this->db->query("DELETE FROM __products_colors WHERE color_id=?", intval($id));
-
         }
     }
 
@@ -139,7 +133,6 @@ class Colors extends Axora
             $this->db->query($query);
         }
 
-
         if (is_array($colors_products_ids)) {
             foreach ($colors_products_ids as $c_id) {
                 $this->db->query("INSERT INTO __products_colors SET product_id=?, color_id=?", $product_id, $c_id);
@@ -154,6 +147,4 @@ class Colors extends Axora
 
         return $this->db->results('color_id');
     }
-
-
 }

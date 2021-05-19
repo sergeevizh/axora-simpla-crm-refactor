@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\Api;
 
 use mysqli;
 
 /**
  * Class Database
+ *
  * @property MySQLi $mysqli
  */
 class Database extends Axora
@@ -35,8 +35,9 @@ class Database extends Axora
     /**
      * Подключение к базе данных
      *
-     * @return bool|mysqli
      * @throws Exception
+     *
+     * @return bool|mysqli
      */
     public function connect()
     {
@@ -45,31 +46,30 @@ class Database extends Axora
             return $this->mysqli;
         }
         // Иначе устанавливаем соединение
-        else {
-            $this->mysqli = (new \mysqli($this->config->db_server, $this->config->db_user, $this->config->db_password, $this->config->db_name));
+         
+        $this->mysqli = (new \mysqli($this->config->db_server, $this->config->db_user, $this->config->db_password, $this->config->db_name));
 //            $this->mysqli = (new PDO('mysql:dbname=lrogiixt_simpla-sceleton;host=localhost','lrogiixt','9WhcrGT])72Sd9'));
-        }
-
+        
         // Выводим сообщение, в случае ошибки
         if ($this->mysqli->connect_error) {
             throw new \Exception('Error: ' . $this->mysqli->error . '<br />Error No: ' . $this->mysqli->errno);
         }
         // Или настраиваем соединение
-        else {
-            if ($this->config->db_charset) {
-                $this->mysqli->query('SET NAMES '.$this->config->db_charset);
-            }
-            if ($this->config->db_sql_mode) {
-                $this->mysqli->query('SET SESSION SQL_MODE = "'.$this->config->db_sql_mode.'"');
-            }
-            if ($this->config->db_timezone) {
-                $this->mysqli->query('SET time_zone = "'.$this->config->db_timezone.'"');
-            }
-            if ($this->config->debug) {
-                $this->mysqli->query('SET profiling = 1');
-                $this->mysqli->query('SET profiling_history_size = 100');
-            }
+         
+        if ($this->config->db_charset) {
+            $this->mysqli->query('SET NAMES '.$this->config->db_charset);
         }
+        if ($this->config->db_sql_mode) {
+            $this->mysqli->query('SET SESSION SQL_MODE = "'.$this->config->db_sql_mode.'"');
+        }
+        if ($this->config->db_timezone) {
+            $this->mysqli->query('SET time_zone = "'.$this->config->db_timezone.'"');
+        }
+        if ($this->config->debug) {
+            $this->mysqli->query('SET profiling = 1');
+            $this->mysqli->query('SET profiling_history_size = 100');
+        }
+        
         return $this->mysqli;
     }
 
@@ -82,9 +82,9 @@ class Database extends Axora
     {
         if (!@$this->mysqli->close()) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -100,23 +100,22 @@ class Database extends Axora
         }
 
         $args = func_get_args();
-        $q = call_user_func_array(array($this, 'placehold'), $args);
+        $q = call_user_func_array([$this, 'placehold'], $args);
 
         return $this->res = $this->mysqli->query($q);
     }
-
 
     /**
      * Экранирование
      *
      * @param  $str
+     *
      * @return string
      */
     public function escape($str)
     {
         return $this->mysqli->real_escape_string($str);
     }
-
 
     /**
      * Плейсхолдер для запросов. Пример работы: $query = $db->placehold('SELECT name FROM products WHERE id=?', $id);
@@ -134,29 +133,31 @@ class Database extends Axora
         if (!empty($args)) {
             $result = $this->sql_placeholder_ex($tmpl, $args, $error);
             if ($result === false) {
-                throw new \Exception('Placeholder substitution error. Diagnostics: ' . $error );
+                throw new \Exception('Placeholder substitution error. Diagnostics: ' . $error);
             }
+
             return $result;
-        } else {
-            return $tmpl;
         }
+
+        return $tmpl;
     }
 
     /**
      * Возвращает результаты запроса. Необязательный второй аргумент указывает какую колонку возвращать вместо всего массива колонок
      *
      * @param  null|string $field
+     *
      * @return array|false
      */
     public function results($field = null)
     {
-        $results = array();
+        $results = [];
         if (!$this->res) {
             throw new \Exception('Error: ' . $this->mysqli->error . '<br />Error No: ' . $this->mysqli->errno);
         }
 
         if ($this->res->num_rows == 0) {
-            return array();
+            return [];
         }
 
         while ($row = $this->res->fetch_object()) {
@@ -166,14 +167,18 @@ class Database extends Axora
                 array_push($results, $row);
             }
         }
+
         return $results;
     }
 
     /**
      * Возвращает первый результат запроса. Необязательный второй аргумент указывает какую колонку возвращать вместо всего массива колонок
+     *
      * @param  string|null $field
-     * @return object|false
+     *
      * @throws Exception
+     *
+     * @return object|false
      */
     public function result($field = null)
     {
@@ -185,9 +190,9 @@ class Database extends Axora
             return $row->$field;
         } elseif (!empty($field) && !isset($row->$field)) {
             return false;
-        } else {
-            return $row;
         }
+
+        return $row;
     }
 
     /**
@@ -224,11 +229,12 @@ class Database extends Axora
      * Компиляция плейсхолдера
      *
      * @param  string $tmpl
+     *
      * @return array
      */
     private function sql_compile_placeholder($tmpl)
     {
-        $compiled = array();
+        $compiled = [];
         $p = 0;     // текущая позиция в строке
         $i = 0;     // счетчик placeholder-ов
         $has_named = false;
@@ -236,9 +242,13 @@ class Database extends Axora
             // Определяем тип placeholder-а.
             switch ($c = substr($tmpl, ++$p, 1)) {
                 case '%': case '@': case '#':
-                    $type = $c; ++$p; break;
+                    $type = $c; ++$p;
+
+break;
                 default:
-                    $type = ''; break;
+                    $type = '';
+
+break;
             }
             // Проверяем, именованный ли это placeholder: "?keyname"
             if (preg_match('/^((?:[^\s[:punct:]]|_)+)/', substr($tmpl, $p), $pock)) {
@@ -254,9 +264,10 @@ class Database extends Axora
                 }
             }
             // Сохранить запись о placeholder-е.
-            $compiled[] = array($key, $type, $start, $p - $start);
+            $compiled[] = [$key, $type, $start, $p - $start];
         }
-        return array($compiled, $tmpl, $has_named);
+
+        return [$compiled, $tmpl, $has_named];
     }
 
     /**
@@ -265,6 +276,7 @@ class Database extends Axora
      * @param $tmpl
      * @param $args
      * @param $errormsg
+     *
      * @return bool|string
      */
     private function sql_placeholder_ex($tmpl, $args, &$errormsg)
@@ -305,11 +317,13 @@ class Database extends Axora
                     if (null === $repl) {
                         $error = $errmsg = "UNKNOWN_CONSTANT_$key";
                     }
+
                     break;
                 }
                 // Обрабатываем ошибку.
                 if (!isset($args[$key])) {
                     $error = $errmsg = "UNKNOWN_PLACEHOLDER_$key";
+
                     break;
                 }
                 // Вставляем значение в соответствии с типом placeholder-а.
@@ -318,9 +332,11 @@ class Database extends Axora
                     // Скалярный placeholder.
                     if (is_array($a)) {
                         $error = $errmsg = "NOT_A_SCALAR_PLACEHOLDER_$key";
+
                         break;
                     }
                     $repl = is_int($a) || is_float($a) ? str_replace(',', '.', $a) : "'".addslashes($a)."'";
+
                     break;
                 }
                 // Иначе это массив или список.
@@ -330,6 +346,7 @@ class Database extends Axora
 
                 if (!is_array($a)) {
                     $error = $errmsg = "NOT_AN_ARRAY_PLACEHOLDER_$key";
+
                     break;
                 }
                 if ($type === '@') {
@@ -341,11 +358,11 @@ class Database extends Axora
                             $r = "'".@addslashes($v)."'";
                         }
 
-                        $repl .= ($repl===''? "" : ",").$r;
+                        $repl .= ($repl==='' ? "" : ",").$r;
                     }
                 } elseif ($type === '%') {
                     // Это набор пар ключ=>значение.
-                    $lerror = array();
+                    $lerror = [];
                     foreach ($a as $k=>$v) {
                         if (!is_string($k)) {
                             $lerror[$k] = "NOT_A_STRING_KEY_{$k}_FOR_PLACEHOLDER_$key";
@@ -359,17 +376,17 @@ class Database extends Axora
                             $r = "='".@addslashes($v)."'";
                         }
 
-                        $repl .= ($repl===''? "" : ", ").$k.$r;
+                        $repl .= ($repl==='' ? "" : ", ").$k.$r;
                     }
                     // Если была ошибка, составляем сообщение.
                     if (count($lerror)) {
                         $repl = '';
                         foreach ($a as $k=>$v) {
                             if (isset($lerror[$k])) {
-                                $repl .= ($repl===''? "" : ", ").$lerror[$k];
+                                $repl .= ($repl==='' ? "" : ", ").$lerror[$k];
                             } else {
                                 $k = preg_replace('/[^a-zA-Z0-9_-]/', '_', $k);
-                                $repl .= ($repl===''? "" : ", ").$k."=?";
+                                $repl .= ($repl==='' ? "" : ", ").$k."=?";
                             }
                         }
                         $error = $errmsg = $repl;
@@ -404,11 +421,12 @@ class Database extends Axora
             // Последняя часть строки.
             $out .= substr($tmpl, $p);
             $errormsg = $out;
+
             return false;
-        } else {
-            $errormsg = false;
-            return $out;
         }
+        $errormsg = false;
+
+        return $out;
     }
 
     /**
@@ -473,8 +491,8 @@ class Database extends Axora
             $num_fields = $this->mysqli->field_count;
 
             if ($num_rows > 0) {
-                $field_type=array();
-                $field_name = array();
+                $field_type=[];
+                $field_name = [];
                 $meta = $result->fetch_fields();
                 foreach ($meta as $m) {
                     array_push($field_type, $m->type);
@@ -492,6 +510,7 @@ class Database extends Axora
                             switch ($field_type[$i]) {
                                 case 'int':
                                     fwrite($h, $row[$i]);
+
                                     break;
                                 case 'string':
                                 case 'blob':

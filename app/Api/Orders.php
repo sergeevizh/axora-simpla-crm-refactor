@@ -4,9 +4,9 @@ namespace App\Api;
 
 class Orders extends Axora
 {
-
     /**
      * @param  int $id
+     *
      * @return object|false
      */
     public function get_order($id)
@@ -46,16 +46,17 @@ class Orders extends Axora
 
         if ($this->db->query($query)) {
             return $this->db->result();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  array $filter
+     *
      * @return array
      */
-    public function get_orders($filter = array())
+    public function get_orders($filter = [])
     {
         // По умолчанию
         $limit = 100;
@@ -76,7 +77,6 @@ class Orders extends Axora
         }
 
         $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page-1)*$limit, $limit);
-
 
         if (isset($filter['status'])) {
             $status_filter = $this->db->placehold('AND o.status = ?', intval($filter['status']));
@@ -141,18 +141,20 @@ class Orders extends Axora
                                         ORDER BY o.status, o.id DESC 
                                         $sql_limit", "%Y-%m-%d");
         $this->db->query($query);
-        $orders = array();
+        $orders = [];
         foreach ($this->db->results() as $order) {
             $orders[$order->id] = $order;
         }
+
         return $orders;
     }
 
     /**
      * @param array $filter
+     *
      * @return bool|object|string
      */
-    public function count_orders($filter = array())
+    public function count_orders($filter = [])
     {
         $keyword_filter = '';
         $label_filter = '';
@@ -194,12 +196,14 @@ class Orders extends Axora
 									        $modified_since_filter
 									        $keyword_filter");
         $this->db->query($query);
+
         return $this->db->result('count');
     }
 
     /**
      * @param  int $id
      * @param  array|object $order
+     *
      * @return mixed
      */
     public function update_order($id, $order)
@@ -230,6 +234,7 @@ class Orders extends Axora
 
     /**
      * @param  array|object $order
+     *
      * @return mixed
      */
     public function add_order($order)
@@ -243,17 +248,20 @@ class Orders extends Axora
         $query = $this->db->placehold("INSERT INTO __orders SET ?%$set_curr_date", $order);
         $this->db->query($query);
         $id = $this->db->insert_id();
+
         return $id;
     }
 
     /**
      * @param  int $id
+     *
      * @return false|object
      */
     public function get_label($id)
     {
         $query = $this->db->placehold("SELECT * FROM __labels WHERE id=? LIMIT 1", intval($id));
         $this->db->query($query);
+
         return $this->db->result();
     }
 
@@ -264,6 +272,7 @@ class Orders extends Axora
     {
         $query = $this->db->placehold("SELECT * FROM __labels ORDER BY position");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -271,6 +280,7 @@ class Orders extends Axora
      * Создание метки заказов
      *
      * @param  array|object $label
+     *
      * @return false|mixed
      */
     public function add_label($label)
@@ -282,21 +292,23 @@ class Orders extends Axora
 
         $id = $this->db->insert_id();
         $this->db->query("UPDATE __labels SET position=id WHERE id=?", $id);
+
         return $id;
     }
-
 
     /**
      * Обновить метку
      *
      * @param  int $id
      * @param  array|object $label
+     *
      * @return int
      */
     public function update_label($id, $label)
     {
         $query = $this->db->placehold("UPDATE __labels SET ?% WHERE id in(?@) LIMIT ?", $label, (array)$id, count((array)$id));
         $this->db->query($query);
+
         return $id;
     }
 
@@ -304,6 +316,7 @@ class Orders extends Axora
      * Удалить метку
      *
      * @param  int $id
+     *
      * @return bool|mixed
      */
     public function delete_label($id)
@@ -312,6 +325,7 @@ class Orders extends Axora
             $query = $this->db->placehold("DELETE FROM __orders_labels WHERE label_id=?", intval($id));
             if ($this->db->query($query)) {
                 $query = $this->db->placehold("DELETE FROM __labels WHERE id=? LIMIT 1", intval($id));
+
                 return $this->db->query($query);
             }
         }
@@ -321,12 +335,13 @@ class Orders extends Axora
 
     /**
      * @param  array|int $order_id
+     *
      * @return array|bool
      */
-    public function get_order_labels($order_id = array())
+    public function get_order_labels($order_id = [])
     {
         if (empty($order_id)) {
-            return array();
+            return [];
         }
 
         $label_id_filter = $this->db->placehold('AND ol.order_id IN(?@)', (array)$order_id);
@@ -344,6 +359,7 @@ class Orders extends Axora
                                         ORDER BY l.position");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -393,20 +409,23 @@ class Orders extends Axora
 
     /**
      * @param $id
+     *
      * @return bool|object|string
      */
     public function get_purchase($id)
     {
         $query = $this->db->placehold("SELECT * FROM __purchases WHERE id=? LIMIT 1", intval($id));
         $this->db->query($query);
+
         return $this->db->result();
     }
 
     /**
      * @param array $filter
+     *
      * @return array|bool
      */
-    public function get_purchases($filter = array())
+    public function get_purchases($filter = [])
     {
         $order_id_filter = '';
         if (!empty($filter['order_id'])) {
@@ -415,12 +434,14 @@ class Orders extends Axora
 
         $query = $this->db->placehold("SELECT * FROM __purchases WHERE 1 $order_id_filter ORDER BY id");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param $id
      * @param $purchase
+     *
      * @return bool
      */
     public function update_purchase($id, $purchase)
@@ -462,11 +483,13 @@ class Orders extends Axora
         $query = $this->db->placehold("UPDATE __purchases SET ?% WHERE id=? LIMIT 1", $purchase, intval($id));
         $this->db->query($query);
         $this->update_total_price($order->id);
+
         return $id;
     }
 
     /**
      * @param  array|object $purchase
+     *
      * @return mixed
      */
     public function add_purchase($purchase)
@@ -529,11 +552,13 @@ class Orders extends Axora
         $purchase_id = $this->db->insert_id();
 
         $this->update_total_price($order->id);
+
         return $purchase_id;
     }
 
     /**
      * @param  int $id
+     *
      * @return bool
      */
     public function delete_purchase($id)
@@ -558,11 +583,13 @@ class Orders extends Axora
         $query = $this->db->placehold("DELETE FROM __purchases WHERE id=? LIMIT 1", intval($id));
         $this->db->query($query);
         $this->update_total_price($order->id);
+
         return true;
     }
 
     /**
      * @param  int $order_id
+     *
      * @return int|false
      */
     public function close($order_id)
@@ -573,8 +600,8 @@ class Orders extends Axora
         }
 
         if (!$order->closed) {
-            $variants_amounts = array();
-            $purchases = $this->get_purchases(array('order_id'=>$order->id));
+            $variants_amounts = [];
+            $purchases = $this->get_purchases(['order_id'=>$order->id]);
             foreach ($purchases as $purchase) {
                 if (isset($variants_amounts[$purchase->variant_id])) {
                     $variants_amounts[$purchase->variant_id] += $purchase->amount;
@@ -593,17 +620,19 @@ class Orders extends Axora
                 $variant = $this->variants->get_variant($purchase->variant_id);
                 if (!$variant->infinity) {
                     $new_stock = $variant->stock-$purchase->amount;
-                    $this->variants->update_variant($variant->id, array('stock'=>$new_stock));
+                    $this->variants->update_variant($variant->id, ['stock'=>$new_stock]);
                 }
             }
             $query = $this->db->placehold("UPDATE __orders SET closed=1, modified=NOW() WHERE id=? LIMIT 1", $order->id);
             $this->db->query($query);
         }
+
         return $order->id;
     }
 
     /**
      * @param  int $order_id
+     *
      * @return int|false
      */
     public function open($order_id)
@@ -614,22 +643,24 @@ class Orders extends Axora
         }
 
         if ($order->closed) {
-            $purchases = $this->get_purchases(array('order_id'=>$order->id));
+            $purchases = $this->get_purchases(['order_id'=>$order->id]);
             foreach ($purchases as $purchase) {
                 $variant = $this->variants->get_variant($purchase->variant_id);
                 if ($variant && !$variant->infinity) {
                     $new_stock = $variant->stock+$purchase->amount;
-                    $this->variants->update_variant($variant->id, array('stock'=>$new_stock));
+                    $this->variants->update_variant($variant->id, ['stock'=>$new_stock]);
                 }
             }
             $query = $this->db->placehold("UPDATE __orders SET closed=0, modified=NOW() WHERE id=? LIMIT 1", $order->id);
             $this->db->query($query);
         }
+
         return $order->id;
     }
 
     /**
      * @param  int $order_id
+     *
      * @return int|false
      */
     public function pay($order_id)
@@ -645,11 +676,13 @@ class Orders extends Axora
 
         $query = $this->db->placehold("UPDATE __orders SET payment_status=1, payment_date=NOW(), modified=NOW() WHERE id=? LIMIT 1", $order->id);
         $this->db->query($query);
+
         return $order->id;
     }
 
     /**
      * @param  int $order_id
+     *
      * @return int|false
      */
     private function update_total_price($order_id)
@@ -661,12 +694,14 @@ class Orders extends Axora
 
         $query = $this->db->placehold("UPDATE __orders o SET o.total_price=IFNULL((SELECT SUM(p.price*p.amount)*(100-o.discount)/100 FROM __purchases p WHERE p.order_id=o.id), 0)+o.delivery_price*(1-o.separate_delivery)-o.coupon_discount, modified=NOW() WHERE o.id=? LIMIT 1", $order->id);
         $this->db->query($query);
+
         return $order->id;
     }
 
     /**
      * @param  int $id
      * @param  null $status
+     *
      * @return object|false
      */
     public function get_next_order($id, $status = null)
@@ -681,14 +716,15 @@ class Orders extends Axora
 
         if ($next_id) {
             return $this->get_order(intval($next_id));
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  int $id
      * @param  null $status
+     *
      * @return object|false
      */
     public function get_prev_order($id, $status = null)
@@ -702,8 +738,8 @@ class Orders extends Axora
         $prev_id = $this->db->result('id');
         if ($prev_id) {
             return $this->get_order(intval($prev_id));
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

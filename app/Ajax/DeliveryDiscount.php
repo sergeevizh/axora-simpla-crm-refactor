@@ -6,7 +6,6 @@ use App\Api\Axora;
 
 class DeliveryDiscount extends Axora implements IAjaxRequest
 {
-
     public function boot()
     {
         $expire = time() + 60 * 60 * 24;
@@ -31,6 +30,6 @@ class DeliveryDiscount extends Axora implements IAjaxRequest
 
     private function addToCookie($key, $value, $expire): void
     {
-        setcookie($key,$value, $expire, '/');
+        setcookie($key, $value, $expire, '/');
     }
 }

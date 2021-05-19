@@ -6,14 +6,15 @@ use Imagick;
 
 class Image extends Axora
 {
-    private $allowed_extentions = array('png', 'gif', 'jpg', 'jpeg', 'ico');
+    private $allowed_extentions = ['png', 'gif', 'jpg', 'jpeg', 'ico'];
 
     public function __construct()
     {
         parent::__construct();
     }
 
-    public function resize_image($filename, $width=0, $height=0, $set_watermark=false) {
+    public function resize_image($filename, $width=0, $height=0, $set_watermark=false)
+    {
         $resized_filename = $this->add_resize_params($filename, '', $width, $height, $set_watermark);
         $resized_filename_encoded = $resized_filename;
 
@@ -26,7 +27,8 @@ class Image extends Axora
         return $this->config->root_url.'/'.$this->config->resized_images_dir.$resized_filename_encoded.'?'.$this->config->token($resized_filename);
     }
 
-    public function crop_image($filename, $width=0, $height=0, $set_watermark=false) {
+    public function crop_image($filename, $width=0, $height=0, $set_watermark=false)
+    {
         $resized_filename = $this->add_resize_params($filename, 'crop', $width, $height, $set_watermark);
         $resized_filename_encoded = $resized_filename;
 
@@ -40,7 +42,9 @@ class Image extends Axora
     }
     /**
      * Создание превью изображения
+     *
      * @param  $filename файл с изображением (без пути к файлу)
+     *
      * @return string имя файла превью
      */
     public function resize($filename)
@@ -59,7 +63,6 @@ class Image extends Axora
 
         $resized_file = $this->add_resize_params($original_file, $type, $width, $height, $set_watermark);
 
-
         // Пути к папкам с картинками
         $originals_dir = $this->config->root_dir.$this->config->original_images_dir;
         $preview_dir = $this->config->root_dir.$this->config->resized_images_dir;
@@ -69,7 +72,6 @@ class Image extends Axora
 
         $sharpen = min(100, $this->settings->images_sharpen)/100;
         $watermark_transparency =  1-min(100, $this->settings->watermark_transparency)/100;
-
 
         if ($set_watermark && is_file($this->config->root_dir.$this->config->watermark_file)) {
             $watermark = $this->config->root_dir.$this->config->watermark_file;
@@ -92,11 +94,12 @@ class Image extends Axora
      * @param int $width
      * @param int $height
      * @param bool $set_watermark
+     *
      * @return string
      */
     public function add_resize_params($filename, $type='', $width=0, $height=0, $set_watermark=false)
     {
-        if ('.' != ($dirname = pathinfo($filename,  PATHINFO_DIRNAME))) {
+        if ('.' != ($dirname = pathinfo($filename, PATHINFO_DIRNAME))) {
             $file = $dirname.'/'.pathinfo($filename, PATHINFO_FILENAME);
         } else {
             $file = pathinfo($filename, PATHINFO_FILENAME);
@@ -104,10 +107,10 @@ class Image extends Axora
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
 
         if ($width>0 || $height>0) {
-            $resized_filename = $file.'.'.$type.($width>0?$width:'').'x'.($height>0?$height:'').($set_watermark?'w':'').'.'.$ext;
+            $resized_filename = $file.'.'.$type.($width>0 ? $width : '').'x'.($height>0 ? $height : '').($set_watermark ? 'w' : '').'.'.$ext;
         } else {
             // TODO fix этот вариант сейчас не работает
-            $resized_filename = $file.'.'.$type.($set_watermark?'w':'').'.'.$ext;
+            $resized_filename = $file.'.'.$type.($set_watermark ? 'w' : '').'.'.$ext;
         }
 
         return $resized_filename;
@@ -115,6 +118,7 @@ class Image extends Axora
 
     /**
      * @param  string $filename
+     *
      * @return array|false
      */
     public function get_resize_params($filename)
@@ -131,11 +135,12 @@ class Image extends Axora
         $set_watermark = $matches[5] == 'w';    // ставить ли водяной знак
         $ext = $matches[6];                     // расширение файла
 
-        return array($file.'.'.$ext, $type, $width, $height, $set_watermark);
+        return [$file.'.'.$ext, $type, $width, $height, $set_watermark];
     }
 
     /**
      * @param  string $filename
+     *
      * @return string|false
      */
     public function download_image($filename)
@@ -170,12 +175,14 @@ class Image extends Axora
         // Перед долгим копированием займем это имя
         fclose(fopen($this->config->root_dir.$this->config->original_images_dir.$new_name, 'w'));
         copy($filename, $this->config->root_dir.$this->config->original_images_dir.$new_name);
+
         return $new_name;
     }
 
     /**
      * @param  string $filename
      * @param  string $name
+     *
      * @return string|false
      */
     public function upload_image($filename, $name)
@@ -215,6 +222,7 @@ class Image extends Axora
      * @param  int $watermark_offset_x
      * @param  int $watermark_offset_y
      * @param  int $watermark_opacity
+     *
      * @return bool
      */
     private function image_constrain_gd($src_file, $dst_file, $type='', $max_w, $max_h, $watermark=null, $watermark_offset_x=0, $watermark_offset_y=0, $watermark_opacity=1)
@@ -236,6 +244,7 @@ class Image extends Axora
             if (!copy($src_file, $dst_file)) {
                 return false;
             }
+
             return true;
         }
 
@@ -243,13 +252,16 @@ class Image extends Axora
         switch ($src_type) {
             case 'image/jpeg':
                 $src_img = imageCreateFromJpeg($src_file);
+
                 break;
             case 'image/gif':
                 $src_img = imageCreateFromGif($src_file);
+
                 break;
             case 'image/png':
                 $src_img = imageCreateFromPng($src_file);
                 imagealphablending($src_img, true);
+
                 break;
             default:
                 return false;
@@ -317,9 +329,12 @@ class Image extends Axora
             imagecopy(
                 $_dst_img,
                 $dst_img,
-                0, 0,
-                $x0, $y0,
-                $max_w, $max_h
+                0,
+                0,
+                $x0,
+                $y0,
+                $max_w,
+                $max_h
             );
 
             $dst_img = $_dst_img;
@@ -343,7 +358,6 @@ class Image extends Axora
             $this->imagecopymerge_alpha($dst_img, $overlay, $watermark_x, $watermark_y, 0, 0, $owidth, $oheight, $watermark_opacity*100);
         }
 
-
         // recalculate quality value for png image
         if ('image/png' === $src_type) {
             $quality = round(($quality / 100) * 10);
@@ -363,6 +377,7 @@ class Image extends Axora
                 return imageGif($dst_img, $dst_file);
             case 'image/png':
                 imagesavealpha($dst_img, true);
+
                 return imagePng($dst_img, $dst_file, $quality);
             default:
                 return false;
@@ -382,6 +397,7 @@ class Image extends Axora
      * @param  int $watermark_offset_y
      * @param  int $watermark_opacity
      * @param  float $sharpen
+     *
      * @return bool
      */
     private function image_constrain_imagick($src_file, $dst_file, $type='', $max_w, $max_h, $watermark=null, $watermark_offset_x=0, $watermark_offset_y=0, $watermark_opacity=1, $sharpen=0.2)
@@ -403,6 +419,7 @@ class Image extends Axora
             if (!copy($src_file, $dst_file)) {
                 return false;
             }
+
             return true;
         }
 
@@ -436,7 +453,6 @@ class Image extends Axora
             $watermark_x = min(($dst_w-$owidth)*$watermark_offset_x/100, $dst_w);
             $watermark_y = min(($dst_h-$oheight)*$watermark_offset_y/100, $dst_h);
         }
-
 
         // Анимированные gif требуют прохода по фреймам
         foreach ($thumb as $frame) {
@@ -486,6 +502,7 @@ class Image extends Axora
      * @param  int $max_w максимальная ширина
      * @param  int $max_h максимальная высота
      * @param  string $type
+     *
      * @return array|bool
      */
     private function calc_contrain_size($src_w, $src_h, $max_w = 0, $max_h = 0, $type = 'resize')
@@ -519,11 +536,13 @@ class Image extends Axora
                 $dst_h = $max_h;
             }
         }
-        return array($dst_w, $dst_h);
+
+        return [$dst_w, $dst_h];
     }
 
     /**
      * @param  string $filename
+     *
      * @return mixed|string
      */
     public function correct_filename($filename)
@@ -533,28 +552,29 @@ class Image extends Axora
         $res = str_replace($ru, $en, $filename);
         $res = strtolower($res);
         $res = preg_replace("/[^a-z0-9_-]/", "", $res);
+
         return $res;
     }
 
-     /**
-     * merge two true colour images while maintaining alpha transparency of both
-     * images.
-     *
-     * known issues : Opacity values other than 100% get a bit screwy, the source
-     *                composition determines how much this issue will annoy you.
-     *                if in doubt, use as you would imagecopy_alpha (i.e. keep
-     *                opacity at 100%)
-     *
-     * @param resource $dst_im Destination image link resource
-     * @param resource $src_im Source image link resource
-     * @param int $dst_x x-coordinate of destination point
-     * @param int $dst_y y-coordinate of destination point
-     * @param int $src_x x-coordinate of source point
-     * @param int $src_y y-coordinate of source point
-     * @param int $src_w Source width
-     * @param int $src_h Source height
-     * @param int $pct Opacity or source image
-     */
+    /**
+    * merge two true colour images while maintaining alpha transparency of both
+    * images.
+    *
+    * known issues : Opacity values other than 100% get a bit screwy, the source
+    *                composition determines how much this issue will annoy you.
+    *                if in doubt, use as you would imagecopy_alpha (i.e. keep
+    *                opacity at 100%)
+    *
+    * @param resource $dst_im Destination image link resource
+    * @param resource $src_im Source image link resource
+    * @param int $dst_x x-coordinate of destination point
+    * @param int $dst_y y-coordinate of destination point
+    * @param int $src_x x-coordinate of source point
+    * @param int $src_y y-coordinate of source point
+    * @param int $src_w Source width
+    * @param int $src_h Source height
+    * @param int $pct Opacity or source image
+    */
     private function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h, $pct)
     {
         // creating a cut resource

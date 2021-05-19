@@ -4,7 +4,7 @@ namespace App\Api;
 
 class Money extends Axora
 {
-    private $currencies = array();
+    private $currencies = [];
     private $currency;
 
     public function __construct()
@@ -13,10 +13,9 @@ class Money extends Axora
         $this->init_currencies();
     }
 
-
     private function init_currencies()
     {
-        $this->currencies = array();
+        $this->currencies = [];
         // Выбираем из базы валюты
         $this->db->query('SELECT id, 
                                  name, 
@@ -39,10 +38,9 @@ class Money extends Axora
         $this->currency = reset($this->currencies);
     }
 
-
-    public function get_currencies($filter = array())
+    public function get_currencies($filter = [])
     {
-        $currencies = array();
+        $currencies = [];
         foreach ($this->currencies as $id=>$currency) {
             if ((isset($filter['enabled']) && $filter['enabled'] == 1 && $currency->enabled) || empty($filter['enabled'])) {
                 $currencies[$id] = $currency;
@@ -69,12 +67,13 @@ class Money extends Axora
         return $this->currency;
     }
 
-
     public function add_currency($currency)
     {
-        $query = $this->db->placehold('INSERT INTO __currencies
+        $query = $this->db->placehold(
+            'INSERT INTO __currencies
 		SET ?%',
-        $currency);
+            $currency
+        );
 
         if (!$this->db->query($query)) {
             return false;
@@ -89,15 +88,19 @@ class Money extends Axora
 
     public function update_currency($id, $currency)
     {
-        $query = $this->db->placehold('UPDATE __currencies
+        $query = $this->db->placehold(
+            'UPDATE __currencies
 						SET ?%
 						WHERE id IN (?@)',
-                    $currency, (array)$id);
+            $currency,
+            (array)$id
+        );
         if (!$this->db->query($query)) {
             return false;
         }
 
         $this->init_currencies();
+
         return $id;
     }
 
@@ -110,19 +113,18 @@ class Money extends Axora
         $this->init_currencies();
     }
 
-
     public function convert($price, $currency_id = null, $format = true)
     {
         if (isset($currency_id)) {
             if (is_numeric($currency_id)) {
-                $currency = $this->get_currency((integer)$currency_id);
+                $currency = $this->get_currency((int)$currency_id);
             } else {
                 $currency = $this->get_currency((string)$currency_id);
             }
         } elseif (isset($_SESSION['currency_id'])) {
             $currency = $this->get_currency($_SESSION['currency_id']);
         } else {
-            $currency = current($this->get_currencies(array('enabled'=>1)));
+            $currency = current($this->get_currencies(['enabled'=>1]));
         }
 
         $result = $price;
@@ -131,7 +133,7 @@ class Money extends Axora
             // Умножим на курс валюты
             $result = $result*$currency->rate_from/$currency->rate_to;
             // Точность отображения, знаков после запятой
-            $precision = isset($currency->cents)?$currency->cents:2;
+            $precision = isset($currency->cents) ? $currency->cents : 2;
         } else {
             $precision = 2;
         }

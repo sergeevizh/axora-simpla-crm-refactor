@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\RequestRules\User;
 
 use App\RequestRules\IRequestRules;
@@ -20,5 +19,4 @@ class RegisterUserRequest implements IRequestRules
     {
         // TODO: Implement messages() method.
     }
-
 }

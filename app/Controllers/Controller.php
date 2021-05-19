@@ -36,6 +36,7 @@ class Controller
      * @param JsonResponse $response
      * @param array $data
      * @param int $status
+     *
      * @return object|JsonResponse
      */
     public function jsonResponse(JsonResponse $response, array $data, int $status = 200)

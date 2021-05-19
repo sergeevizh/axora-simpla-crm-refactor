@@ -13,9 +13,10 @@ class Categories extends Axora
      * Функция возвращает массив категорий
      *
      * @param array $filter
+     *
      * @return array
      */
-    public function get_categories($filter = array())
+    public function get_categories($filter = [])
     {
         if (!isset($this->categories_tree)) {
             $this->init_categories();
@@ -25,12 +26,13 @@ class Categories extends Axora
             $query = $this->db->placehold("SELECT category_id FROM __products_categories WHERE product_id IN( ?@ ) ORDER BY position", (array)$filter['product_id']);
             $this->db->query($query);
             $categories_ids = $this->db->results('category_id');
-            $result = array();
+            $result = [];
             foreach ($categories_ids as $id) {
                 if (isset($this->all_categories[$id])) {
                     $result[$id] = $this->all_categories[$id];
                 }
             }
+
             return $result;
         }
 
@@ -41,6 +43,7 @@ class Categories extends Axora
      * Функция возвращает id категорий для заданного товара
      *
      * @param $product_id
+     *
      * @return array|bool
      */
     /* TODO Используется только в export.php можно переделать на метод get_categories(array('product_id'=>...))*/
@@ -53,12 +56,14 @@ class Categories extends Axora
                                         WHERE product_id IN( ?@ )
                                         ORDER BY position", (array)$product_id);
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * Функция возвращает id категорий для всех товаров
      * TODO Используется в REST а он не рабочий , remove
+     *
      * @return array|bool
      */
     public function get_products_categories()
@@ -69,6 +74,7 @@ class Categories extends Axora
                                         FROM __products_categories 
                                         ORDER BY position");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -90,6 +96,7 @@ class Categories extends Axora
      * Функция возвращает заданную категорию
      *
      * @param $id
+     *
      * @return bool|object
      */
     public function get_category($id)
@@ -111,11 +118,11 @@ class Categories extends Axora
         return false;
     }
 
-
     /**
      * Добавление категории
      *
      * @param  $category
+     *
      * @return mixed
      */
     public function add_category($category)
@@ -140,6 +147,7 @@ class Categories extends Axora
         $this->db->query("UPDATE __categories SET position=id WHERE id=?", $id);
         unset($this->categories_tree);
         unset($this->all_categories);
+
         return $id;
     }
 
@@ -148,6 +156,7 @@ class Categories extends Axora
      *
      * @param $id
      * @param $category
+     *
      * @return int
      */
     public function update_category($id, $category)
@@ -156,6 +165,7 @@ class Categories extends Axora
         $this->db->query($query);
         unset($this->categories_tree);
         unset($this->all_categories);
+
         return intval($id);
     }
 
@@ -163,6 +173,7 @@ class Categories extends Axora
      * Удаление категории
      *
      * @param  $ids
+     *
      * @return void
      */
     public function delete_category($ids)
@@ -235,18 +246,17 @@ class Categories extends Axora
         }
     }
 
-
     // Инициализация категорий, после которой категории будем выбирать из локальной переменной
-    private function init_categories($filter = array())
+    private function init_categories($filter = [])
     {
         // Дерево категорий
         $tree = new \stdClass();
-        $tree->subcategories = array();
+        $tree->subcategories = [];
 
         // Указатели на узлы дерева
-        $pointers = array();
+        $pointers = [];
         $pointers[0] = &$tree;
-        $pointers[0]->path = array();
+        $pointers[0]->path = [];
         $pointers[0]->level = 0;
         $pointers[0]->products_count = 0;
 
@@ -283,7 +293,6 @@ class Categories extends Axora
         // $query = $this->db->placehold("SELECT c.id, c.parent_id, c.name, c.description, c.url, c.meta_title, c.meta_keywords, c.meta_description, c.image, c.visible, c.position, COUNT(p.id) as products_count
         //                               FROM __categories c LEFT JOIN __products_categories pc ON pc.category_id=c.id LEFT JOIN __products p ON p.id=pc.product_id AND p.visible GROUP BY c.id ORDER BY c.parent_id, c.position");
 
-
         $this->db->query($query);
         $categories = $this->db->results();
 
@@ -299,7 +308,7 @@ class Categories extends Axora
 
                     // Путь к текущей категории
                     $curr = $pointers[$category->id];
-                    $pointers[$category->id]->path = array_merge((array)$pointers[$category->parent_id]->path, array($curr));
+                    $pointers[$category->id]->path = array_merge((array)$pointers[$category->parent_id]->path, [$curr]);
 
                     // Уровень вложенности категории
                     $pointers[$category->id]->level = 1+$pointers[$category->parent_id]->level;
@@ -341,12 +350,14 @@ class Categories extends Axora
         $this->all_categories = $pointers;
     }
 
-
     /**
      * Получаем категории товаров с определенной группы (акции, новинки и тд.)
+     *
      * @param $type
-     * @return array|false
+     *
      * @throws \Exception
+     *
+     * @return array|false
      */
     public function getCategoriesByProductType($type)
     {
@@ -354,12 +365,15 @@ class Categories extends Axora
         switch ($type) {
             case 'new':
                 $query_by_type = "AND p.{$type} = 1";
+
                 break;
             case 'featured':
                 $query_by_type = "AND p.{$type} = 1";
+
                 break;
             case 'actions':
                 $query_by_type = "AND (SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = 1";
+
                 break;
         }
 
@@ -382,6 +396,5 @@ class Categories extends Axora
         }
 
         return $results_categories;
-
     }
 }

@@ -2,18 +2,14 @@
 
 namespace App\Controllers;
 
-
 use App\Api\Delivery;
 use stdClass;
 
 class CartController extends Controller
 {
-
     public function __construct()
     {
         parent::__construct();
-
-
 
         // Если передан id варианта, добавим его в корзину
         if ($variant_id = $this->request->get('variant', 'integer')) {
@@ -22,9 +18,8 @@ class CartController extends Controller
             exit();
         }
 
-
         // очищаем корзину полностью
-        if ( isset($_GET['delete_variant']) &&  $_GET['delete_variant'] == 'all') {
+        if (isset($_GET['delete_variant']) &&  $_GET['delete_variant'] == 'all') {
             $this->cart->empty_cart();
             if (!isset($_POST['submit_order']) || $_POST['submit_order'] != 1) {
                 header('Location: ' . $this->config->root_url . '/cart', true, 302);
@@ -43,8 +38,6 @@ class CartController extends Controller
 
         // Если нажали оформить заказ
         if (isset($_POST['checkout'])) {
-
-
             $order = new stdClass();
             $order->delivery_id = $this->request->post('delivery_id', 'integer');
             $order->name = $this->request->post('name');
@@ -80,24 +73,21 @@ class CartController extends Controller
                 $this->design->assign('error', 'empty_name');
             } elseif (empty($order->email)) {
                 $this->design->assign('error', 'empty_email');
-            }
-            else {
+            } else {
                 // Добавляем заказ в базу
 
-
                 $order_id = $this->orders->add_order($order);
-
 
                 $_SESSION['order_id'] = $order_id;
 
                 // Если использовали купон, увеличим количество его использований
                 if ($cart->coupon) {
-                    $this->coupons->update_coupon($cart->coupon->id, array('usages' => $cart->coupon->usages + 1));
+                    $this->coupons->update_coupon($cart->coupon->id, ['usages' => $cart->coupon->usages + 1]);
                 }
 
                 // Добавляем товары к заказу
                 foreach ($this->request->post('amounts') as $variant_id => $amount) {
-                    $this->orders->add_purchase(array('order_id' => $order_id, 'variant_id' => intval($variant_id), 'amount' => intval($amount)));
+                    $this->orders->add_purchase(['order_id' => $order_id, 'variant_id' => intval($variant_id), 'amount' => intval($amount)]);
                 }
 
                 $order = $this->orders->get_order($order_id);
@@ -105,13 +95,11 @@ class CartController extends Controller
                 // Стоимость доставки
                 $delivery = $this->delivery->get_delivery($order->delivery_id);
 
-
-
-                if (!empty($delivery) && $delivery->free_from > $order->total_price  ) {
-                    $this->orders->update_order($order->id, array(
+                if (!empty($delivery) && $delivery->free_from > $order->total_price) {
+                    $this->orders->update_order($order->id, [
                         'delivery_price' => $delivery->price,
                         'separate_delivery' => $cart->total_price > $delivery->free_from ? Delivery::FREE_DELIVERY : Delivery::PAID_DELIVERY,
-                    ));
+                    ]);
                 }
 
                 // Отправляем письмо пользователю
@@ -129,7 +117,6 @@ class CartController extends Controller
             }
         } else {
 
-
             // Если нам запостили amounts, обновляем их
             if ($amounts = $this->request->post('amounts')) {
                 foreach ($amounts as $variant_id => $amount) {
@@ -141,17 +128,16 @@ class CartController extends Controller
                     $this->cart->apply_coupon('');
                     header('Location: ' . $this->config->root_url . '/cart', true, 302);
                     exit();
-                } else {
-                    $coupon = $this->coupons->get_coupon((string)$coupon_code);
+                }
+                $coupon = $this->coupons->get_coupon((string)$coupon_code);
 
-                    if (empty($coupon) || !$coupon->valid) {
-                        $this->cart->apply_coupon($coupon_code);
-                        $this->design->assign('coupon_error', 'invalid');
-                    } else {
-                        $this->cart->apply_coupon($coupon_code);
-                        header('Location: ' . $this->config->root_url . '/cart', true, 302);
-                        exit();
-                    }
+                if (empty($coupon) || !$coupon->valid) {
+                    $this->cart->apply_coupon($coupon_code);
+                    $this->design->assign('coupon_error', 'invalid');
+                } else {
+                    $this->cart->apply_coupon($coupon_code);
+                    header('Location: ' . $this->config->root_url . '/cart', true, 302);
+                    exit();
                 }
             }
         }
@@ -160,11 +146,11 @@ class CartController extends Controller
     public function fetch()
     {
         // Варианты оплаты
-        $payment_methods = $this->payment->get_payment_methods(array('enabled' => 1));
+        $payment_methods = $this->payment->get_payment_methods(['enabled' => 1]);
         $this->design->assign('payment_methods', $payment_methods);
         // Данные пользователя
         if ($this->user) {
-            $last_order = $this->orders->get_orders(array('user_id' => $this->user->id, 'limit' => 1));
+            $last_order = $this->orders->get_orders(['user_id' => $this->user->id, 'limit' => 1]);
             $last_order = reset($last_order);
             if ($last_order) {
                 $this->design->assign('name', $last_order->name);
@@ -174,35 +160,29 @@ class CartController extends Controller
             } else {
                 $this->design->assign('name', $this->user->name);
                 $this->design->assign('email', $this->user->email);
-                $this->design->assign('phone',  $this->user->phone);
-                $this->design->assign('address',  $this->user->address);
+                $this->design->assign('phone', $this->user->phone);
+                $this->design->assign('address', $this->user->address);
             }
         }
 
-            if (isset($_COOKIE['order_name'])) {
-                $this->design->assign('name', $_COOKIE['order_name']);
-
-            }
-            if (isset($_COOKIE['order_email'])) {
-                $this->design->assign('email', $_COOKIE['order_email']);
-
-            }
-            if (isset($_COOKIE['order_phone'])) {
-                $this->design->assign('phone', $_COOKIE['order_phone']);
-
-            }
-            if (isset($_COOKIE['order_address'])) {
-                $this->design->assign('address', $_COOKIE['order_address']);
-
-            }
-            if (isset($_COOKIE['order_comment'])) {
-                $this->design->assign('comment', $_COOKIE['order_comment']);
-
-            }
-
+        if (isset($_COOKIE['order_name'])) {
+            $this->design->assign('name', $_COOKIE['order_name']);
+        }
+        if (isset($_COOKIE['order_email'])) {
+            $this->design->assign('email', $_COOKIE['order_email']);
+        }
+        if (isset($_COOKIE['order_phone'])) {
+            $this->design->assign('phone', $_COOKIE['order_phone']);
+        }
+        if (isset($_COOKIE['order_address'])) {
+            $this->design->assign('address', $_COOKIE['order_address']);
+        }
+        if (isset($_COOKIE['order_comment'])) {
+            $this->design->assign('comment', $_COOKIE['order_comment']);
+        }
 
         // Если существуют валидные купоны, нужно вывести инпут для купона
-        if ($this->coupons->count_coupons(array('valid' => 1)) > 0) {
+        if ($this->coupons->count_coupons(['valid' => 1]) > 0) {
             $this->design->assign('coupon_request', true);
         }
 

@@ -4,13 +4,12 @@ namespace App\Api;
 
 class Delivery extends Axora
 {
-
-    const FREE_DELIVERY = 1;
-    const PAID_DELIVERY = 0;
-
+    public const FREE_DELIVERY = 1;
+    public const PAID_DELIVERY = 0;
 
     /**
      * @param  $id
+     *
      * @return false|object
      */
     public function get_delivery($id)
@@ -28,14 +27,16 @@ class Delivery extends Axora
 										LIMIT 1', intval($id));
 
         $this->db->query($query);
+
         return $this->db->result();
     }
 
     /**
      * @param  array $filter
+     *
      * @return array|bool
      */
-    public function get_deliveries($filter = array())
+    public function get_deliveries($filter = [])
     {
         // По умолчанию
         $enabled_filter = '';
@@ -65,6 +66,7 @@ class Delivery extends Axora
     /**
      * @param  int|array $id
      * @param  array|object $delivery
+     *
      * @return int|array
      */
     public function update_delivery($id, $delivery)
@@ -77,6 +79,7 @@ class Delivery extends Axora
 
     /**
      * @param  array|object $delivery
+     *
      * @return false|mixed
      */
     public function add_delivery($delivery)
@@ -110,6 +113,7 @@ class Delivery extends Axora
 
     /**
      * @param  int $id
+     *
      * @return array|false
      */
     public function get_delivery_payments($id)
@@ -123,6 +127,7 @@ class Delivery extends Axora
     /**
      * @param  int $id
      * @param  array $payment_methods_ids
+     *
      * @return void
      */
     public function update_delivery_payments($id, $payment_methods_ids)

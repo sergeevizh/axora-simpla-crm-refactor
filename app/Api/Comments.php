@@ -4,11 +4,11 @@ namespace App\Api;
 
 class Comments extends Axora
 {
-
     /**
      * Возвращает комментарий по id
      *
      * @param $id
+     *
      * @return bool|object|string
      */
     public function get_comment($id)
@@ -27,18 +27,19 @@ class Comments extends Axora
 
         if ($this->db->query($query)) {
             return $this->db->result();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Возвращает комментарии, удовлетворяющие фильтру
      *
      * @param array $filter
+     *
      * @return array|bool
      */
-    public function get_comments($filter = array())
+    public function get_comments($filter = [])
     {
         // По умолчанию
         $limit = 100;
@@ -59,7 +60,6 @@ class Comments extends Axora
         }
 
         $sql_limit = $this->db->placehold(' LIMIT ?, ? ', ($page - 1) * $limit, $limit);
-
 
         if (isset($filter['ip'])) {
             $ip = $this->db->placehold("OR c.ip=?", $filter['ip']);
@@ -104,6 +104,7 @@ class Comments extends Axora
 										$sql_limit");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -111,9 +112,10 @@ class Comments extends Axora
      * Количество комментариев, удовлетворяющих фильтру
      *
      * @param array $filter
+     *
      * @return bool|object|string
      */
-    public function count_comments($filter = array())
+    public function count_comments($filter = [])
     {
         $object_id_filter = '';
         $type_filter = '';
@@ -151,6 +153,7 @@ class Comments extends Axora
 										    $approved_filter", $this->settings->date_format);
 
         $this->db->query($query);
+
         return $this->db->result('count');
     }
 
@@ -158,6 +161,7 @@ class Comments extends Axora
      * Добавление комментария
      *
      * @param $comment
+     *
      * @return bool|mixed
      */
     public function add_comment($comment)
@@ -178,12 +182,14 @@ class Comments extends Axora
      *
      * @param  int $id
      * @param  array|object $comment
+     *
      * @return mixed
      */
     public function update_comment($id, $comment)
     {
         $query = $this->db->placehold("UPDATE __comments SET ?% WHERE id IN( ?@ ) LIMIT 1", $comment, (array)$id);
         $this->db->query($query);
+
         return $id;
     }
 

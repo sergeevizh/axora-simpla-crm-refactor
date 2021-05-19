@@ -54,6 +54,5 @@ class AjaxAuthController extends Controller
         $session->set('user_id', $user_id);
 
         return $this->jsonResponse($response, ['redirectUrl' => $request->headers->get('referer')]);
-
     }
 }

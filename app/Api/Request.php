@@ -9,7 +9,6 @@ namespace App\Api;
  */
 class Request extends Axora
 {
-
     /**
      * Конструктор, чистка слешей
      */
@@ -31,6 +30,7 @@ class Request extends Axora
      * Если аргумент не задан, возвращает имя метода
      *
      * @param  string $method
+     *
      * @return null|string
      */
     public function method($method = null)
@@ -38,6 +38,7 @@ class Request extends Axora
         if (!empty($method)) {
             return strtolower($_SERVER['REQUEST_METHOD']) == strtolower($method);
         }
+
         return $_SERVER['REQUEST_METHOD'];
     }
 
@@ -48,6 +49,7 @@ class Request extends Axora
      *
      * @param  string $val
      * @param  string $type
+     *
      * @return mixed
      */
     private function _input_filter($val, $type = null)
@@ -82,6 +84,7 @@ class Request extends Axora
      *
      * @param  string $name
      * @param  string $type
+     *
      * @return mixed
      */
     public function get($name, $type = null)
@@ -105,6 +108,7 @@ class Request extends Axora
      *
      * @param  string $name
      * @param  string $type
+     *
      * @return mixed
      */
     public function post($name = null, $type = null)
@@ -126,6 +130,7 @@ class Request extends Axora
      *
      * @param  string $name
      * @param  string $name2
+     *
      * @return string|null
      */
     public function files($name, $name2 = null)
@@ -134,29 +139,30 @@ class Request extends Axora
             return $_FILES[$name][$name2];
         } elseif (empty($name2) && !empty($_FILES[$name])) {
             return $_FILES[$name];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
      * Рекурсивная чистка магических слешей
      *
      * @param $var
+     *
      * @return array|string
      */
     private function stripslashes_recursive($var)
     {
         if (is_array($var)) {
-            $res = array();
+            $res = [];
             foreach ($var as $k => $v) {
                 $res[$this->stripslashes_recursive($k)] = $this->stripslashes_recursive($v);
             }
 
             return $res;
-        } else {
-            return stripslashes($var);
         }
+
+        return stripslashes($var);
     }
 
     /**
@@ -169,19 +175,22 @@ class Request extends Axora
         if (!empty($_POST)) {
             if (empty($_POST['session_id']) || $_POST['session_id'] != session_id()) {
                 unset($_POST);
+
                 return false;
             }
         }
+
         return true;
     }
 
     /**
      * @param  array $params
+     *
      * @return string
      */
-    public function url($params = array())
+    public function url($params = [])
     {
-        $query = array();
+        $query = [];
         $url = @parse_url($_SERVER["REQUEST_URI"]);
         if (isset($url['query'])) {
             parse_str($url['query'], $query);
@@ -214,7 +223,7 @@ class Request extends Axora
 
         return http_build_url(null, $url);
     }
-    
+
     /**
      * Determine if the request is the result of an AJAX call.
      *
@@ -222,11 +231,10 @@ class Request extends Axora
      */
     public function ajax()
     {
-        return isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) &&
-            ( strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' );
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            (strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 }
-
 
 if (!function_exists('http_build_url')) {
     define('HTTP_URL_REPLACE', 1);                // Replace every part of the first URL when there's one of the second URL
@@ -248,9 +256,9 @@ if (!function_exists('http_build_url')) {
     // @param	mixed			Same as the first argument
     // @param	int				A bitmask of binary or'ed HTTP_URL constants (Optional)HTTP_URL_REPLACE is the default
     // @param	array			If set, it will be filled with the parts of the composed url like parse_url() would return
-    function http_build_url($url, $parts=array(), $flags=HTTP_URL_REPLACE, &$new_url=false)
+    function http_build_url($url, $parts=[], $flags=HTTP_URL_REPLACE, &$new_url=false)
     {
-        $keys = array('user','pass','port','path','query','fragment');
+        $keys = ['user','pass','port','path','query','fragment'];
 
         // HTTP_URL_STRIP_ALL becomes all the HTTP_URL_STRIP_Xs
         if ($flags & HTTP_URL_STRIP_ALL) {
@@ -313,7 +321,6 @@ if (!function_exists('http_build_url')) {
             }
         }
 
-
         $new_url = $parse_url;
 
         return
@@ -323,15 +330,14 @@ if (!function_exists('http_build_url')) {
             .((isset($parse_url['port'])) ? ':' . $parse_url['port'] : '')
             .((isset($parse_url['path'])) ? $parse_url['path'] : '')
             .((isset($parse_url['query'])) ? '?' . $parse_url['query'] : '')
-            .((isset($parse_url['fragment'])) ? '#' . $parse_url['fragment'] : '')
-        ;
+            .((isset($parse_url['fragment'])) ? '#' . $parse_url['fragment'] : '');
     }
 }
 
 if (!function_exists('http_build_query')) {
     function http_build_query($data, $prefix=null, $sep='', $key='')
     {
-        $ret    = array();
+        $ret    = [];
         foreach ((array)$data as $k => $v) {
             $k    = urlencode($k);
             if (is_int($k) && $prefix != null) {

@@ -13,9 +13,10 @@ class Variants extends Axora
      * Функция возвращает варианты товара
      *
      * @param	array $filter
+     *
      * @return 	array
      */
-    public function get_variants($filter = array())
+    public function get_variants($filter = [])
     {
         $product_id_filter = '';
         $variant_id_filter = '';
@@ -35,7 +36,7 @@ class Variants extends Axora
         }
 
         if (!$product_id_filter && !$variant_id_filter) {
-            return array();
+            return [];
         }
 
         $query = $this->db->placehold("SELECT v.id, 
@@ -56,6 +57,7 @@ class Variants extends Axora
                                     ", $this->settings->max_order_amount);
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -63,6 +65,7 @@ class Variants extends Axora
      * Функция возвращает вариант
      *
      * @param  int $id
+     *
      * @return object|false
      */
     public function get_variant($id)
@@ -84,34 +87,40 @@ class Variants extends Axora
                                         LIMIT 1", $this->settings->max_order_amount, $id);
 
         $this->db->query($query);
+
         return $this->db->result();
     }
 
     /**
      * @param  int $id
      * @param  array|object $variant
+     *
      * @return int
      */
     public function update_variant($id, $variant)
     {
         $query = $this->db->placehold('UPDATE __variants SET ?% WHERE id=? LIMIT 1', $variant, intval($id));
         $this->db->query($query);
+
         return $id;
     }
 
     /**
      * @param  array|object $variant
+     *
      * @return int
      */
     public function add_variant($variant)
     {
         $query = $this->db->placehold('INSERT INTO __variants SET ?%', $variant);
         $this->db->query($query);
+
         return $this->db->insert_id();
     }
 
     /**
      * @param  int $id
+     *
      * @return void
      */
     public function delete_variant($id)
@@ -127,6 +136,7 @@ class Variants extends Axora
 
     /**
      * @param  int $id
+     *
      * @return void
      */
     public function delete_attachment($id)
@@ -142,6 +152,6 @@ class Variants extends Axora
         if (!empty($filename) && $exists == 0) {
             @unlink($this->config->root_dir.'/'.$this->config->downloads_dir.$filename);
         }
-        $this->update_variant($id, array('attachment'=>null));
+        $this->update_variant($id, ['attachment'=>null]);
     }
 }

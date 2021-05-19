@@ -6,11 +6,9 @@ use App\Api\Axora;
 
 class Compare extends Axora implements IAjaxRequest
 {
-
     public function boot()
     {
         if ($this->request->method('post')) {
-
             $product_id = $this->request->post('product_id', 'int');
 
             if (!empty($product_id)) {

@@ -7,10 +7,10 @@ use App\Repositories\IUserDBRepository;
 
 class EloquentUserQueries implements IUserDBRepository
 {
-
     public function create(array $data): int
     {
         $user = User::create($data);
+
         return $user ? $user->id : '';
     }
 

@@ -9,7 +9,6 @@ use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
 return $dispatcher = simpleDispatcher(function (RouteCollector $r) {
-
     $r->get('/', [MainController::class, 'index']);
     $r->get('/blog', [BlogController::class, 'index']);
 

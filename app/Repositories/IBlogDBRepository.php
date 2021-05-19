@@ -1,11 +1,8 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 interface IBlogDBRepository
 {
-    public function get() : array;
-
+    public function get(): array;
 }

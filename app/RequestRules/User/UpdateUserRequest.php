@@ -8,7 +8,7 @@ class UpdateUserRequest implements IRequestRules
 {
     public static function rules(): array
     {
-       return [
+        return [
            'name' => 'required',
            'email' => 'required|email',
            'phone' => 'nullable',

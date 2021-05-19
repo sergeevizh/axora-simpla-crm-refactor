@@ -16,9 +16,10 @@ class Users extends Axora
 
     /**
      * @param array $filter
+     *
      * @return array
      */
-    public function get_users($filter = array())
+    public function get_users($filter = [])
     {
         $limit = 1000;
         $page = 1;
@@ -57,10 +58,12 @@ class Users extends Axora
             switch ($filter['sort']) {
                 case 'date':
                     $order = 'u.created DESC';
+
                     break;
 
                 case 'name':
                     $order = 'u.name';
+
                     break;
             }
         }
@@ -86,14 +89,16 @@ class Users extends Axora
 										ORDER BY $order
 										$sql_limit");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param array $filter
+     *
      * @return false|int
      */
-    public function count_users($filter = array())
+    public function count_users($filter = [])
     {
         $group_id_filter = '';
         $keyword_filter = '';
@@ -123,11 +128,13 @@ class Users extends Axora
 											$group_id_filter
 											$keyword_filter");
         $this->db->query($query);
+
         return $this->db->result('count');
     }
 
     /**
      * @param int $id
+     *
      * @return object|false
      */
     public function get_user($id)
@@ -173,6 +180,7 @@ class Users extends Axora
 
     /**
      * @param object|array $user
+     *
      * @return int|false
      */
     public function add_user($user)
@@ -193,12 +201,14 @@ class Users extends Axora
 
         $query = $this->db->placehold('INSERT INTO __users SET ?%', $user);
         $this->db->query($query);
+
         return $this->db->insert_id();
     }
 
     /**
      * @param int $id
      * @param object|array $user
+     *
      * @return int
      */
     public function update_user($id, $user)
@@ -211,11 +221,13 @@ class Users extends Axora
 
         $query = $this->db->placehold('UPDATE __users SET ?% WHERE id=? LIMIT 1', $user, intval($id));
         $this->db->query($query);
+
         return $id;
     }
 
     /**
      * @param int $id
+     *
      * @return bool
      */
     public function delete_user($id)
@@ -229,6 +241,7 @@ class Users extends Axora
                 return true;
             }
         }
+
         return false;
     }
 
@@ -244,11 +257,13 @@ class Users extends Axora
 										FROM __groups AS g
 										ORDER BY g.discount');
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param int $id
+     *
      * @return object
      */
     public function get_group($id)
@@ -266,29 +281,34 @@ class Users extends Axora
 
     /**
      * @param array|object $group
+     *
      * @return int
      */
     public function add_group($group)
     {
         $query = $this->db->placehold('INSERT INTO __groups SET ?%', $group);
         $this->db->query($query);
+
         return $this->db->insert_id();
     }
 
     /**
      * @param int $id
      * @param array|object $group
+     *
      * @return int
      */
     public function update_group($id, $group)
     {
         $query = $this->db->placehold('UPDATE __groups SET ?% WHERE id=? LIMIT 1', $group, intval($id));
         $this->db->query($query);
+
         return $id;
     }
 
     /**
      * @param int $id
+     *
      * @return bool
      */
     public function delete_group($id)
@@ -302,12 +322,14 @@ class Users extends Axora
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * @param string $email
      * @param string $password
+     *
      * @return false|int
      */
     public function check_password($email, $password)

@@ -2,12 +2,11 @@
 
 namespace App\Controllers;
 
-
 class SearchController extends Controller
 {
     public function fetch()
     {
-        $filter = array();
+        $filter = [];
         $filter['visible'] = 1;
 
         // Если задано ключевое слово
@@ -17,10 +16,7 @@ class SearchController extends Controller
             $filter['keyword'] = $keyword;
         }
 
-
-
-        if(!empty($filter['keyword'])){
-
+        if (!empty($filter['keyword'])) {
             $kw = $this->db->escape($keyword);
 
             $this->db->query("SELECT c.id, c.name, c.url, 'category' AS type, CONCAT('catalog/', c.url) AS url
@@ -37,7 +33,6 @@ class SearchController extends Controller
             $search_brands = $this->db->results();
             $this->design->assign('search_brands', $search_brands);
 
-
             $items_per_page = $this->settings->products_num;
             // Текущая страница в постраничном выводе
             $current_page = $this->request->get('page', 'integer');
@@ -46,7 +41,6 @@ class SearchController extends Controller
             $this->design->assign('current_page_num', $current_page);
             // Вычисляем количество страниц
             $products_count = $this->products->count_products($filter);
-
 
             $pages_num = ceil($products_count/$items_per_page);
             $this->design->assign('total_pages_num', $pages_num);
@@ -62,12 +56,8 @@ class SearchController extends Controller
             // Товары
             $products = $this->products->get_products_compile($filter);
             $this->design->assign('products', $products);
-
         }
 
         return $this->design->fetch('search.tpl');
     }
 }
-
-
-

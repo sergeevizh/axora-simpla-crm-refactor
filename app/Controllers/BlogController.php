@@ -12,10 +12,9 @@ class BlogController extends Controller
         if (!empty($url)) {
             // Выводим пост
             return $this->fetch_post($url);
-        } else {
-            // Иначе выводим ленту блога
-            return $this->fetch_blog();
         }
+        // Иначе выводим ленту блога
+        return $this->fetch_blog();
     }
 
     private function fetch_post($url)
@@ -32,7 +31,6 @@ class BlogController extends Controller
         if (!empty($this->user)) {
             $this->design->assign('comment_name', $this->user->name);
         }
-
 
         // Принимаем комментарий
         if ($this->request->method('post') && $this->request->post('comment')) {
@@ -78,7 +76,7 @@ class BlogController extends Controller
         }
 
         // Комментарии к посту
-        $comments = $this->comments->get_comments(array('type' => 'blog', 'object_id' => $post->id, 'approved' => 1, 'ip' => $_SERVER['REMOTE_ADDR']));
+        $comments = $this->comments->get_comments(['type' => 'blog', 'object_id' => $post->id, 'approved' => 1, 'ip' => $_SERVER['REMOTE_ADDR']]);
         $this->design->assign('comments', $comments);
         $this->design->assign('post', $post);
 
@@ -100,7 +98,7 @@ class BlogController extends Controller
         // Количество постов на 1 странице
         $items_per_page = 20;
 
-        $filter = array();
+        $filter = [];
 
         // Выбираем только видимые посты
         $filter['visible'] = 1;

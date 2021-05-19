@@ -4,8 +4,7 @@ namespace App\Api;
 
 class Tags extends Axora
 {
-
-    public function gets_tags($filter = array())
+    public function gets_tags($filter = [])
     {
 
         // По умолчанию
@@ -40,7 +39,6 @@ class Tags extends Axora
         if (isset($filter['visible'])) {
             $visible_filter = $this->db->placehold('AND t.visible=?', intval($filter['visible']));
         }
-
 
         if (!empty($filter['category_id'])) {
             $category_id_filter = $this->db->placehold('AND t.category_id IN(?@)', (array)$filter['category_id']);
@@ -92,10 +90,11 @@ class Tags extends Axora
                                             $sql_limit");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
-    public function count_tags($filter = array())
+    public function count_tags($filter = [])
     {
         $tag_id_filter = '';
         $visible_filter = '';
@@ -104,7 +103,6 @@ class Tags extends Axora
         $features_filter = '';
         $brands_filter = '';
 //        $colors_filter = '';
-
 
         if (isset($filter['in_category'])) {
             $in_category_filter = $this->db->placehold('AND t.in_category=?', intval($filter['in_category']));
@@ -120,6 +118,7 @@ class Tags extends Axora
                                 $features_filter
                                 $brands_filter
                             ");
+
         return $this->db->result('count');
     }
 
@@ -157,7 +156,6 @@ class Tags extends Axora
         return $this->db->result();
     }
 
-
     public function add_tag($tag)
     {
         $tag = (array)$tag;
@@ -182,9 +180,9 @@ class Tags extends Axora
     {
         $query = $this->db->placehold("UPDATE __tags SET ?% WHERE id=? LIMIT 1", $tag, intval($id));
         $this->db->query($query);
+
         return $id;
     }
-
 
     public function delete_tag($id)
     {
@@ -193,6 +191,4 @@ class Tags extends Axora
             $this->db->query($query);
         }
     }
-
-
 }

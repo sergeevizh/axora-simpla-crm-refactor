@@ -38,7 +38,7 @@ class DB
 
     private function eloquentSetup()
     {
-        $capsule = new Capsule;
+        $capsule = new Capsule();
         $capsule->addConnection([
             'driver' => 'mysql',
             'host' => $this->config->db_server,
@@ -50,7 +50,7 @@ class DB
             'prefix' => $this->config->db_prefix,
         ]);
 
-        $capsule->setEventDispatcher(new Dispatcher(new Container));
+        $capsule->setEventDispatcher(new Dispatcher(new Container()));
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
 

@@ -1,11 +1,10 @@
 <?php
 
-
 namespace App\Helpers;
-
 
 /**
  * Class Config
+ *
  * @property string $license
  * @property string $db_server
  * @property string $db_user
@@ -48,7 +47,7 @@ class ConfigHelper
     // Файл для хранения настроек
     public $config_file = 'config/config.ini';
 
-    private $vars = array();
+    private $vars = [];
 
     // В конструкторе записываем настройки файла в переменные этого класса
     // для удобного доступа к ним. Например: $axora->config->db_user
@@ -116,7 +115,6 @@ class ConfigHelper
             $this->vars['salt'] = md5(md5_file(dirname(dirname(__FILE__)) . '/../' . $this->config_file) . $s['dev'] . $s['ino'] . $s['uid'] . $s['mtime']);
         }
 
-
         // Часовой пояс
         if (!empty($this->vars['php_timezone'])) {
             date_default_timezone_set($this->vars['php_timezone']);
@@ -129,15 +127,16 @@ class ConfigHelper
      * Магическим методов возвращаем нужную переменную
      *
      * @param $name
+     *
      * @return mixed|null
      */
     public function __get($name)
     {
         if (isset($this->vars[$name])) {
             return $this->vars[$name];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -161,6 +160,7 @@ class ConfigHelper
 
     /**
      * @param string $text
+     *
      * @return string
      */
     public function token($text)
@@ -171,6 +171,7 @@ class ConfigHelper
     /**
      * @param $text
      * @param $token
+     *
      * @return bool
      */
     public function check_token($text, $token)
@@ -178,6 +179,7 @@ class ConfigHelper
         if (!empty($token) && $token === $this->token($text)) {
             return true;
         }
+
         return false;
     }
 }

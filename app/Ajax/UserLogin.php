@@ -26,7 +26,7 @@ class UserLogin extends Axora implements IAjaxRequest
 
             $_SESSION['user_id'] = $userId;
 
-            $this->users->update_user($userId, array('last_ip' => $_SERVER['REMOTE_ADDR']));
+            $this->users->update_user($userId, ['last_ip' => $_SERVER['REMOTE_ADDR']]);
 
             $redirect_url = $this->config->root_url;
 

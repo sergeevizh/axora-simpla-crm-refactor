@@ -4,9 +4,9 @@ namespace App\Api;
 
 class Managers extends Axora
 {
-    public $permissions_list = array('products', 'categories', 'brands', 'features', 'orders', 'labels',
+    public $permissions_list = ['products', 'categories', 'brands', 'features', 'orders', 'labels',
         'users', 'groups', 'coupons', 'pages', 'blog', 'comments', 'feedbacks', 'import', 'export',
-        'backup', 'stats', 'design', 'settings', 'currency', 'delivery', 'payment', 'managers', 'license' , 'banners', 'tags');
+        'backup', 'stats', 'design', 'settings', 'currency', 'delivery', 'payment', 'managers', 'license' , 'banners', 'tags'];
 
     public $passwd_file = "simpla/.passwd";
 
@@ -25,7 +25,7 @@ class Managers extends Axora
      */
     public function get_managers()
     {
-        $managers = array();
+        $managers = [];
 
         $lines = explode("\n", @file_get_contents($this->config->root_dir.$this->passwd_file));
         foreach ($lines as $line) {
@@ -34,7 +34,7 @@ class Managers extends Axora
                 $fields = explode(":", $line);
                 $manager = new \stdClass();
                 $manager->login = trim($fields[0]);
-                $manager->permissions = array();
+                $manager->permissions = [];
                 if (isset($fields[2])) {
                     $manager->permissions = explode(",", $fields[2]);
                     foreach ($manager->permissions as &$permission) {
@@ -47,6 +47,7 @@ class Managers extends Axora
                 $managers[] = $manager;
             }
         }
+
         return $managers;
     }
 
@@ -60,6 +61,7 @@ class Managers extends Axora
 
     /**
      * @param  string $login
+     *
      * @return object|false
      */
     public function get_manager($login = null)
@@ -73,6 +75,7 @@ class Managers extends Axora
                 $m = new \stdClass();
                 $m->login = 'manager';
                 $m->permissions = $this->permissions_list;
+
                 return $m;
             }
         }
@@ -82,11 +85,13 @@ class Managers extends Axora
                 return $manager;
             }
         }
+
         return false;
     }
 
     /**
      * @param  array|object $manager
+     *
      * @return string|false
      */
     public function add_manager($manager)
@@ -112,14 +117,15 @@ class Managers extends Axora
         file_put_contents($this->passwd_file, @file_get_contents($this->passwd_file)."\n".$line);
         if ($m = $this->get_manager($manager->login)) {
             return $m->login;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  string $login
      * @param  array|object $manager
+     *
      * @return string|false
      */
     public function update_manager($login, $manager)
@@ -159,11 +165,13 @@ class Managers extends Axora
                 return $m->login;
             }
         }
+
         return false;
     }
 
     /**
      * @param  string $login
+     *
      * @return void
      */
     public function delete_manager($login)
@@ -180,6 +188,7 @@ class Managers extends Axora
 
     /**
      * @param  string $plainpasswd
+     *
      * @return string
      */
     private function crypt_apr1_md5($plainpasswd)
@@ -217,15 +226,18 @@ class Managers extends Axora
             $tmp = $bin[$i].$bin[$k].$bin[$j].$tmp;
         }
         $tmp = chr(0).chr(0).$bin[11].$tmp;
-        $tmp = strtr(strrev(substr(base64_encode($tmp), 2)),
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
-        "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+        $tmp = strtr(
+            strrev(substr(base64_encode($tmp), 2)),
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+            "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        );
 
         return "$"."apr1"."$".$salt."$".$tmp;
     }
 
     /**
      * @param  string $module
+     *
      * @return bool
      */
     public function access($module)

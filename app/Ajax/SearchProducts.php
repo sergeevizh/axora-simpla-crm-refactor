@@ -14,11 +14,10 @@ class SearchProducts extends Axora implements IAjaxRequest
     public function boot()
     {
         $this->result = new \stdClass();
-        $this->result->suggestions = array();
+        $this->result->suggestions = [];
         $this->result->query = $this->request->get('query', 'string');
 
         if (!empty($this->result->query)) {
-
             $kw = $this->db->escape($this->result->query);
 
             $this->fetchCategories($kw);
@@ -41,13 +40,12 @@ class SearchProducts extends Axora implements IAjaxRequest
 									ORDER BY p.name
 									LIMIT ?", $this->limit);
 
-        foreach($this->db->results() as $p){
+        foreach ($this->db->results() as $p) {
             $products[$p->id] = $p;
         }
 
-        if(!empty($products)){
-
-            $currencies = $this->money->get_currencies(array('enabled'=>1));
+        if (!empty($products)) {
+            $currencies = $this->money->get_currencies(['enabled'=>1]);
 
             $currency = isset($_SESSION['currency_id'])
                 ? $this->money->get_currency($_SESSION['currency_id'])
@@ -75,7 +73,7 @@ class SearchProducts extends Axora implements IAjaxRequest
                 if (!empty($product->image)) {
                     $product->image = $this->image->resize_image($product->image, 200, 150);
                 }
-                if ( $product->price > 0) {
+                if ($product->price > 0) {
                     $product->price = $this->money->convert($product->price) . ' ' .$currency->sign;
                 } else {
                     $product->price = '';

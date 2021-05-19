@@ -61,7 +61,7 @@ class Design
         }
     }
 
-    function render(string $templateFilename)
+    public function render(string $templateFilename)
     {
         $content = $this->fetch($templateFilename);
 
@@ -78,13 +78,13 @@ class Design
      * @param array|string $tpl_var
      * @param mixed $value
      * @param boolean $nocache
+     *
      * @return Smarty_Internal_Data
      */
     public function assign($tpl_var, $value = null, $nocache = false)
     {
         return $this->smarty->assign($tpl_var, $value, $nocache);
     }
-
 
     public function fetch(string $template): string
     {
@@ -110,5 +110,4 @@ class Design
     {
         $this->smarty->clearAllCache();
     }
-
 }

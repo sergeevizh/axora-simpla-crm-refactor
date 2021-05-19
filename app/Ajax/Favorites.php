@@ -19,17 +19,18 @@ class Favorites extends Axora implements IAjaxRequest
             $this->addToCookie([$productId]);
             $favoritesCount++;
         } else {
-
             $favorites = explode(',', $_COOKIE['favorites']);
 
             switch ($_GET['action']) {
                 case 'add':
                     $favorites[] = $productId;
                     $this->addToCookie($favorites);
+
                     break;
                 case 'remove':
                     unset($favorites[array_search($productId, $favorites)]);
                     $this->addToCookie($favorites);
+
                     break;
             }
             $favoritesCount = count($favorites);

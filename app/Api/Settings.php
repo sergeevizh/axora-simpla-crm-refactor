@@ -7,6 +7,7 @@ namespace App\Api;
  *
  *
  * Настройки сайта
+ *
  * @property string $site_name          Имя сайта
  * @property string $company_name       Имя компании
  * @property string $date_format        Формат даты
@@ -28,11 +29,9 @@ namespace App\Api;
  * @property string $watermark_offset_y - Вертикальное положение водяного знака
  * @property string $watermark_transparency - Прозрачность знака (больше — прозрачней)
  * @property string $images_sharpen - Резкость изображений (рекомендуется 20%)
- *
  * @property string $theme -
  * @property string $last_1c_orders_export_date -
  * @property string $license -
- *
  * @property string $pz_server
  * @property string $pz_password
  * @property string $pz_phones
@@ -43,7 +42,7 @@ class Settings extends Axora
     /**
      * @var array $vars
      */
-    private $vars = array();
+    private $vars = [];
 
     public function __construct()
     {
@@ -66,9 +65,9 @@ class Settings extends Axora
             return $this->vars[$name];
         } elseif ($res = parent::__get($name)) {
             return $res;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public function __set($name, $value)

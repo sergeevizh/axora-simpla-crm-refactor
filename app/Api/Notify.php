@@ -12,6 +12,7 @@ class Notify extends Axora
      * @param  string $message Текст письма
      * @param  string $from От кого - email
      * @param  string $reply_to Кому отвечать - email
+     *
      * @return void
      */
     public function email($to, $subject, $message, $from = '', $reply_to = '')
@@ -30,6 +31,7 @@ class Notify extends Axora
 
     /**
      * @param  int $order_id
+     *
      * @return void|false
      */
     public function email_order_user($order_id)
@@ -38,15 +40,15 @@ class Notify extends Axora
             return false;
         }
 
-        $purchases = $this->orders->get_purchases(array('order_id'=>$order->id));
+        $purchases = $this->orders->get_purchases(['order_id'=>$order->id]);
         $this->design->assign('purchases', $purchases);
 
-        $products_ids = array();
+        $products_ids = [];
         foreach ($purchases as $purchase) {
             $products_ids[] = $purchase->product_id;
         }
 
-        $products = $this->products->get_products_compile(array('id'=>$products_ids, 'limit' => count($products_ids)));
+        $products = $this->products->get_products_compile(['id'=>$products_ids, 'limit' => count($products_ids)]);
 
         foreach ($purchases as &$purchase) {
             if (!empty($products[$purchase->product_id])) {
@@ -68,7 +70,7 @@ class Notify extends Axora
         // Отправляем письмо
         // Если в шаблон не передавалась валюта, передадим
         if ($this->design->smarty->getTemplateVars('currency') === null) {
-            $this->design->assign('currency', current($this->money->get_currencies(array('enabled'=>1))));
+            $this->design->assign('currency', current($this->money->get_currencies(['enabled'=>1])));
         }
 
         $email_template = $this->design->fetch($this->config->root_dir.'design/'.$this->settings->theme.'/html/email_order.tpl');
@@ -79,6 +81,7 @@ class Notify extends Axora
 
     /**
      * @param  int $order_id
+     *
      * @return bool
      */
     public function email_order_admin($order_id)
@@ -87,15 +90,15 @@ class Notify extends Axora
             return false;
         }
 
-        $purchases = $this->orders->get_purchases(array('order_id'=>$order->id));
+        $purchases = $this->orders->get_purchases(['order_id'=>$order->id]);
         $this->design->assign('purchases', $purchases);
 
-        $products_ids = array();
+        $products_ids = [];
         foreach ($purchases as $purchase) {
             $products_ids[] = $purchase->product_id;
         }
 
-        $products = $this->products->get_products_compile(array('id'=>$products_ids, 'limit' => count($products_ids)));
+        $products = $this->products->get_products_compile(['id'=>$products_ids, 'limit' => count($products_ids)]);
 
         foreach ($purchases as &$purchase) {
             if (!empty($products[$purchase->product_id])) {
@@ -127,9 +130,9 @@ class Notify extends Axora
         $this->email($this->settings->order_email, $subject, $email_template, $this->settings->notify_from_email);
     }
 
-
     /**
      * @param  int $comment_id
+     *
      * @return bool
      */
     public function email_comment_admin($comment_id)
@@ -156,6 +159,7 @@ class Notify extends Axora
     /**
      * @param  int $user_id
      * @param  string $code
+     *
      * @return bool
      */
     public function email_password_remind($user_id, $code)
@@ -178,6 +182,7 @@ class Notify extends Axora
 
     /**
      * @param  int $feedback_id
+     *
      * @return bool
      */
     public function email_feedback_admin($feedback_id)

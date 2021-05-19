@@ -8,9 +8,10 @@ class Brands extends Axora
      * Функция возвращает массив брендов, удовлетворяющих фильтру
      *
      * @param array $filter
+     *
      * @return array|bool
      */
-    public function get_brands($filter = array())
+    public function get_brands($filter = [])
     {
         $category_id_filter = '';
         $is_main_category_filter = '';
@@ -32,7 +33,6 @@ class Brands extends Axora
         }
 
         if (!empty($filter['category_id'])) {
-
             if (!empty($filter['is_main_category'])) {
                 $is_main_category_filter ='AND pc.position=( SELECT MIN(pc2.position) 
 											                    FROM __products_categories pc2 
@@ -46,7 +46,7 @@ class Brands extends Axora
                                                         $visible_filter 
                                                         $in_stock_filter", (array)$filter['category_id']);
             $group_by = 'GROUP BY b.id';
-        } elseif(isset($filter['visible']) || isset($filter['in_stock'])) {
+        } elseif (isset($filter['visible']) || isset($filter['in_stock'])) {
             $category_id_filter = $this->db->placehold("LEFT JOIN __products p ON p.brand_id=b.id  
                                     WHERE 1
                                     $visible_filter 
@@ -78,6 +78,7 @@ class Brands extends Axora
      * (в зависимости от типа аргумента, int - id, string - url)
      *
      * @param  int|string $id
+     *
      * @return bool|object
      */
     public function get_brand($id)
@@ -100,6 +101,7 @@ class Brands extends Axora
 										WHERE $filter
 										LIMIT 1");
         $this->db->query($query);
+
         return $this->db->result();
     }
 
@@ -107,6 +109,7 @@ class Brands extends Axora
      * Добавление бренда
      *
      * @param  array|object $brand
+     *
      * @return mixed
      */
     public function add_brand($brand)
@@ -119,6 +122,7 @@ class Brands extends Axora
         }
 
         $this->db->query('INSERT INTO __brands SET ?%', $brand);
+
         return $this->db->insert_id();
     }
 
@@ -127,12 +131,14 @@ class Brands extends Axora
      *
      * @param  int $id
      * @param  array|object $brand
+     *
      * @return int
      */
     public function update_brand($id, $brand)
     {
         $query = $this->db->placehold('UPDATE __brands SET ?% WHERE id=? LIMIT 1', $brand, intval($id));
         $this->db->query($query);
+
         return $id;
     }
 
@@ -140,6 +146,7 @@ class Brands extends Axora
      * Удаление бренда
      *
      * @param int $id
+     *
      * @return void
      */
     public function delete_brand($id)
@@ -159,6 +166,7 @@ class Brands extends Axora
      * Удаление изображения бренда
      *
      * @param  int $brand_id
+     *
      * @return void
      */
     public function delete_image($brand_id)
@@ -180,10 +188,9 @@ class Brands extends Axora
             }
         }
     }
-    
+
     public function getCategoriesByBrand($brand_id)
     {
-
         $query = $this->db->placehold("
 				SELECT c.name, count(pc.product_id) as products_count, c.parent_id, c.id, c.url, p.brand_id
 				FROM __products_categories pc
@@ -200,5 +207,4 @@ class Brands extends Axora
 
         return $this->db->results();
     }
-    
 }

@@ -13,7 +13,7 @@ class FeedbackController extends Controller
             $feedback->message        = $this->request->post('message');
             $captcha_code            = $this->request->post('captcha_code');
 
-            $this->design->assign('name',  $feedback->name);
+            $this->design->assign('name', $feedback->name);
             $this->design->assign('email', $feedback->email);
             $this->design->assign('message', $feedback->message);
 

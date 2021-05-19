@@ -4,7 +4,7 @@ namespace App\Api;
 
 class Payment extends Axora
 {
-    public function get_payment_methods($filter = array())
+    public function get_payment_methods($filter = [])
     {
         $delivery_filter = '';
         if (!empty($filter['delivery_id'])) {
@@ -24,6 +24,7 @@ class Payment extends Axora
 					ORDER BY position";
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -51,7 +52,7 @@ class Payment extends Axora
     {
         $modules_dir = $this->config->root_dir.'payment/';
 
-        $modules = array();
+        $modules = [];
         $handler = opendir($modules_dir);
         while ($dir = readdir($handler)) {
             $dir = preg_replace("/[^A-Za-z0-9]+/", "", $dir);
@@ -60,13 +61,13 @@ class Payment extends Axora
                     $module = new \stdClass();
 
                     $module->name = (string) $xml->name;
-                    $module->settings = array();
+                    $module->settings = [];
 
                     foreach ($xml->settings as $setting) {
                         $module->settings[(string)$setting->variable] = new \stdClass();
                         $module->settings[(string)$setting->variable]->name = (string)$setting->name;
                         $module->settings[(string)$setting->variable]->variable = (string)$setting->variable;
-                        $module->settings[(string)$setting->variable]->variable_options = array();
+                        $module->settings[(string)$setting->variable]->variable_options = [];
                         foreach ($setting->options as $option) {
                             $module->settings[(string)$setting->variable]->options[(string)$option->value] = new \stdClass();
                             $module->settings[(string)$setting->variable]->options[(string)$option->value]->name = (string)$option->name;
@@ -78,11 +79,13 @@ class Payment extends Axora
             }
         }
         closedir($handler);
+
         return $modules;
     }
 
     /**
      * @param  int $id
+     *
      * @return array|false
      */
     public function get_payment_deliveries($id)
@@ -96,6 +99,7 @@ class Payment extends Axora
     /**
      * @param  int $id
      * @param  array|object $payment_method
+     *
      * @return mixed
      */
     public function update_payment_method($id, $payment_method)
@@ -109,6 +113,7 @@ class Payment extends Axora
     /**
      * @param  int $method_id
      * @param  mixed $settings
+     *
      * @return mixed
      */
     public function update_payment_settings($method_id, $settings)
@@ -139,13 +144,16 @@ class Payment extends Axora
 
     /**
      * @param  array|object $payment_method
+     *
      * @return bool|mixed
      */
     public function add_payment_method($payment_method)
     {
-        $query = $this->db->placehold('INSERT INTO __payment_methods
+        $query = $this->db->placehold(
+            'INSERT INTO __payment_methods
 		SET ?%',
-        $payment_method);
+            $payment_method
+        );
 
         if (!$this->db->query($query)) {
             return false;

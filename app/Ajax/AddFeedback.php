@@ -16,7 +16,6 @@ class AddFeedback extends Axora implements IAjaxRequest
         $data = $this->shieldingData($_POST);
 
         if ($this->validate($data)) {
-
             try {
                 $this->collectData(['phone', 'name'], $data);
 
@@ -58,6 +57,7 @@ class AddFeedback extends Axora implements IAjaxRequest
     private function addToCollect($key, $value)
     {
         $this->collectData[$key] = $value;
+
         return $this;
     }
 
@@ -66,12 +66,10 @@ class AddFeedback extends Axora implements IAjaxRequest
         $success = true;
 
         foreach ($data as $field => $item) {
-
             if (empty($item)) {
                 $this->errors[] = $field . ' не должно быть пустым';
                 $success = false;
             }
-
         }
 
         return $success;

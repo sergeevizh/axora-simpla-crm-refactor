@@ -4,11 +4,11 @@ namespace App\Api;
 
 class Pages extends Axora
 {
-
     /**
      * Функция возвращает страницу по ее id или url (в зависимости от типа)
      *
      * @param  int|string $id
+     *
      * @return false|object
      */
     public function get_page($id)
@@ -41,14 +41,15 @@ class Pages extends Axora
      * Функция возвращает массив страниц, удовлетворяющих фильтру
      *
      * @param  array $filter
+     *
      * @return array
      */
-    public function get_pages($filter = array())
+    public function get_pages($filter = [])
     {
         $menu_filter = '';
         $visible_filter = '';
 
-        $pages = array();
+        $pages = [];
 
         if (isset($filter['menu_id'])) {
             $menu_filter = $this->db->placehold('AND menu_id IN ( ?@ )', (array)$filter['menu_id']);
@@ -86,6 +87,7 @@ class Pages extends Axora
      * Создание страницы
      *
      * @param  array|object $page
+     *
      * @return false|mixed
      */
     public function add_page($page)
@@ -106,6 +108,7 @@ class Pages extends Axora
      *
      * @param  int|array $id
      * @param  array|object $page
+     *
      * @return false|mixed
      */
     public function update_page($id, $page)
@@ -122,6 +125,7 @@ class Pages extends Axora
      * Удалить страницу
      *
      * @param  int $id
+     *
      * @return bool
      */
     public function delete_page($id)
@@ -132,6 +136,7 @@ class Pages extends Axora
                 return true;
             }
         }
+
         return false;
     }
 
@@ -142,12 +147,13 @@ class Pages extends Axora
      */
     public function get_menus()
     {
-        $menus = array();
+        $menus = [];
 
         $this->db->query('SELECT * FROM __menu ORDER BY position');
         foreach ($this->db->results() as $menu) {
             $menus[$menu->id] = $menu;
         }
+
         return $menus;
     }
 
@@ -155,12 +161,14 @@ class Pages extends Axora
      * Функция возвращает меню по id
      *
      * @param  int $menu_id
+     *
      * @return false|object
      */
     public function get_menu($menu_id)
     {
         $query = $this->db->placehold('SELECT * FROM __menu WHERE id=? LIMIT 1', intval($menu_id));
         $this->db->query($query);
+
         return $this->db->result();
     }
 }

@@ -4,7 +4,6 @@ namespace App\Api;
 
 class Products extends Axora
 {
-
     /**
      * Функция возвращает товары
      * Возможные значения фильтра:
@@ -18,9 +17,10 @@ class Products extends Axora
      * features - фильтр по свойствам товара, массив (id свойства => значение свойства)
      *
      * @param array $filter
+     *
      * @return array|bool
      */
-    public function get_products($filter = array())
+    public function get_products($filter = [])
     {
 
         // По умолчанию
@@ -78,9 +78,9 @@ class Products extends Axora
         }
 
         //if (isset($filter['discounted'])) {
-          //  $discounted_filter = $this->db->placehold('AND (SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = ?', intval($filter['discounted']));
+        //  $discounted_filter = $this->db->placehold('AND (SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = ?', intval($filter['discounted']));
         //}
-         if (isset($filter['discounted'])) {
+        if (isset($filter['discounted'])) {
             $is_new_filter = $this->db->placehold('AND p.discounted=?', intval($filter['discounted']));
         }
 
@@ -96,23 +96,29 @@ class Products extends Axora
             switch ($filter['sort']) {
                 case 'position':
                     $order = 'p.position DESC';
+
                     break;
                 case 'name':
                     $order = 'p.name';
+
                     break;
                 case 'created':
                     $order = 'p.created DESC';
+
                     break;
                 case 'new':
                     $order = 'p.new DESC, p.position DESC';
+
                     break;
                 case 'rand':
                     $order = 'RAND()';
+
                     break;
                 case 'price':
                     //$order = 'pv.price IS NULL, pv.price=0, pv.price';
                     //$order = '(SELECT -pv.price FROM __variants pv WHERE  p.id = pv.product_id  LIMIT 1) DESC';
                     $order = '(SELECT -pv.price FROM __variants pv WHERE (pv.stock IS NULL OR pv.stock>0) AND p.id = pv.product_id AND pv.position=(SELECT MIN(position) FROM __variants WHERE (stock>0 OR stock IS NULL) AND product_id=p.id LIMIT 1) LIMIT 1) DESC';
+
                     break;
                 case 'price_asc':
                     //$order = 'pv.price IS NULL, pv.price=0, pv.price';
@@ -143,11 +149,16 @@ class Products extends Axora
         if (!empty($filter['features']) && !empty($filter['features'])) {
             foreach ($filter['features'] as $feature => $value) {
                 if (count($value) == 1 && current($value) == 'empty') {
-                    $features_filter .= $this->db->placehold('AND ( SELECT count(*)=0 FROM __options o WHERE o.product_id=p.id AND o.feature_id=? LIMIT 1) = 1',
-                        $feature);
+                    $features_filter .= $this->db->placehold(
+                        'AND ( SELECT count(*)=0 FROM __options o WHERE o.product_id=p.id AND o.feature_id=? LIMIT 1) = 1',
+                        $feature
+                    );
                 } else {
-                    $features_filter .= $this->db->placehold('AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value IN (?@) ) ',
-                        $feature, (array)$value);
+                    $features_filter .= $this->db->placehold(
+                        'AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value IN (?@) ) ',
+                        $feature,
+                        (array)$value
+                    );
                 }
             }
         }
@@ -192,6 +203,7 @@ class Products extends Axora
 					$sql_limit";
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -204,9 +216,10 @@ class Products extends Axora
      * features - фильтр по свойствам товара, массив (id свойства => значение свойства)
      *
      * @param array $filter
+     *
      * @return bool|object|string
      */
-    public function count_products($filter = array())
+    public function count_products($filter = [])
     {
         $category_id_filter = '';
         $brand_id_filter = '';
@@ -230,7 +243,6 @@ class Products extends Axora
 											                    WHERE pc.product_id = pc2.product_id)';
             }
         }
-
 
         if (!empty($filter['brand_id'])) {
             $brand_id_filter = $this->db->placehold('AND p.brand_id in(?@)', (array)$filter['brand_id']);
@@ -265,7 +277,7 @@ class Products extends Axora
         if (isset($filter['discounted'])) {
             $discounted_filter = $this->db->placehold('AND (SELECT 1 FROM __variants pv WHERE pv.product_id=p.id AND pv.compare_price>0 LIMIT 1) = ?', intval($filter['discounted']));
         }
-        
+
         if (isset($filter['discounted'])) {
             $is_new_filter = $this->db->placehold('AND p.discounted=?', intval($filter['discounted']));
         }
@@ -285,11 +297,16 @@ class Products extends Axora
         if (!empty($filter['features']) && !empty($filter['features'])) {
             foreach ($filter['features'] as $feature => $value) {
                 if (count($value) == 1 && current($value) == 'empty') {
-                    $features_filter .= $this->db->placehold('AND ( SELECT count(*)=0 FROM __options o WHERE o.product_id=p.id AND o.feature_id=? LIMIT 1) = 1',
-                        $feature);
+                    $features_filter .= $this->db->placehold(
+                        'AND ( SELECT count(*)=0 FROM __options o WHERE o.product_id=p.id AND o.feature_id=? LIMIT 1) = 1',
+                        $feature
+                    );
                 } else {
-                    $features_filter .= $this->db->placehold('AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value IN (?@) ) ',
-                        $feature, (array)$value);
+                    $features_filter .= $this->db->placehold(
+                        'AND p.id in (SELECT product_id FROM __options WHERE feature_id=? AND value IN (?@) ) ',
+                        $feature,
+                        (array)$value
+                    );
                 }
             }
         }
@@ -309,12 +326,14 @@ class Products extends Axora
                                 $max_price
                                 $visible_filter
                                 $features_filter");
+
         return $this->db->result('count');
     }
     /**
      * Функция возвращает товар по id
      *
      * @param  int|string $id
+     *
      * @return bool|object
      */
     public function get_product($id)
@@ -344,16 +363,18 @@ class Products extends Axora
                             FROM __products AS p
                             WHERE $filter
                             LIMIT 1");
+
         return $this->db->result();
     }
 
     /**
      * @param  array $filter
+     *
      * @return array
      */
-    public function get_products_compile($filter = array())
+    public function get_products_compile($filter = [])
     {
-        $products = array();
+        $products = [];
 
         foreach ($this->get_products($filter) as $p) {
             $products[$p->id] = $p;
@@ -361,9 +382,9 @@ class Products extends Axora
         if (!empty($products)) {
             $products_ids = array_keys($products);
             foreach ($products as &$product) {
-                $product->variants = array();
-                $product->images = array();
-                $product->properties = array();
+                $product->variants = [];
+                $product->images = [];
+                $product->properties = [];
                 $product->type = false;
             }
             $this->db->query("SELECT IF(c.name_in_type <> '', c.name_in_type, c.name) AS name, c.image, c.url, pc.product_id 
@@ -377,21 +398,19 @@ class Products extends Axora
                 $products[$row->product_id]->type = $row;
             }
 
-            $variants = $this->variants->get_variants(array('product_id'=>$products_ids));
+            $variants = $this->variants->get_variants(['product_id'=>$products_ids]);
             foreach ($variants as $variant) {
                 $products[$variant->product_id]->variants[$variant->id] = $variant;
             }
 
-            $images = $this->get_images(array('product_id'=>$products_ids));
+            $images = $this->get_images(['product_id'=>$products_ids]);
             foreach ($images as $image) {
                 $products[$image->product_id]->images[] = $image;
             }
 
-
             $ratings = $this->rating->getRatingsByProduct($products_ids);
 
             foreach ($ratings as $rating) {
-
                 if (in_array($rating->product_id, $products_ids)) {
                     $products[$rating->product_id]->rating = round($rating->rating);
                 }
@@ -403,13 +422,8 @@ class Products extends Axora
                 if (isset($product->images[0])) {
                     $product->image = $product->images[0];
                 }
-
-
-
             }
-
         }
-
 
         return $products;
     }
@@ -417,17 +431,17 @@ class Products extends Axora
     /**
      * @param  int $id
      * @param  array|object $product
+     *
      * @return int|false
      */
     public function update_product($id, $product)
     {
-
         $query = $this->db->placehold("UPDATE __products SET ?% WHERE id IN ( ?@ ) LIMIT ?", $product, (array)$id, count((array)$id));
         if ($this->db->query($query)) {
             return $id;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public function setNew($id, $value)
@@ -435,13 +449,14 @@ class Products extends Axora
         $query = $this->db->placehold("UPDATE __products SET new={$value} WHERE id={$id}");
         if ($this->db->query($query)) {
             return $id;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  array|object $product
+     *
      * @return int|false
      */
     public function add_product($product)
@@ -463,51 +478,51 @@ class Products extends Axora
                 $product['name'] .= '_2';
             }
         }
-        
-         if (empty($product['discounted'])){
+
+        if (empty($product['discounted'])) {
             unset($product['discounted']);
         }
-
 
         if ($this->db->query("INSERT INTO __products SET ?%", $product)) {
             $id = $this->db->insert_id();
             $this->db->query("UPDATE __products SET position=id WHERE id=?", $id);
-            return $id;
-        } else {
-            return false;
-        }
-    }
 
+            return $id;
+        }
+
+        return false;
+    }
 
     /**
      * Удалить товар
      *
      * @param  int $id
+     *
      * @return bool
      */
     public function delete_product($id)
     {
         if (!empty($id)) {
             // Удаляем варианты
-            $variants = $this->variants->get_variants(array('product_id'=>$id));
+            $variants = $this->variants->get_variants(['product_id'=>$id]);
             foreach ($variants as $v) {
                 $this->variants->delete_variant($v->id);
             }
 
             // Удаляем изображения
-            $images = $this->get_images(array('product_id'=>$id));
+            $images = $this->get_images(['product_id'=>$id]);
             foreach ($images as $i) {
                 $this->delete_image($i->id);
             }
 
             // Удаляем категории
-            $categories = $this->categories->get_categories(array('product_id'=>$id));
+            $categories = $this->categories->get_categories(['product_id'=>$id]);
             foreach ($categories as $c) {
                 $this->categories->delete_product_category($id, $c->id);
             }
 
             // Удаляем свойства
-            $options = $this->features->get_options(array('product_id'=>$id));
+            $options = $this->features->get_options(['product_id'=>$id]);
             foreach ($options as $o) {
                 $this->features->delete_option($id, $o->feature_id);
             }
@@ -533,7 +548,7 @@ class Products extends Axora
             $this->db->query($query);
 
             // Удаляем отзывы
-            $comments = $this->comments->get_comments(array('object_id'=>$id, 'type'=>'product'));
+            $comments = $this->comments->get_comments(['object_id'=>$id, 'type'=>'product']);
             foreach ($comments as $c) {
                 $this->comments->delete_comment($c->id);
             }
@@ -547,11 +562,13 @@ class Products extends Axora
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * @param  int $id
+     *
      * @return bool|mixed
      */
     public function duplicate_product($id)
@@ -561,7 +578,6 @@ class Products extends Axora
         $product->external_id = '';
         $product->visible = 0;
         unset($product->created);
-
 
         // Сдвигаем товары вперед и вставляем копию на соседнюю позицию
         $this->db->query('UPDATE __products SET position=position+1 WHERE position>?', $product->position);
@@ -575,13 +591,13 @@ class Products extends Axora
         }
 
         // Дублируем изображения
-        $images = $this->get_images(array('product_id'=>$id));
+        $images = $this->get_images(['product_id'=>$id]);
         foreach ($images as $image) {
             $this->add_image($new_id, $image->filename);
         }
 
         // Дублируем варианты
-        $variants = $this->variants->get_variants(array('product_id'=>$id));
+        $variants = $this->variants->get_variants(['product_id'=>$id]);
         foreach ($variants as $variant) {
             $variant->product_id = $new_id;
             unset($variant->id);
@@ -594,7 +610,7 @@ class Products extends Axora
         }
 
         // Дублируем свойства
-        $options = $this->features->get_options(array('product_id'=>$id));
+        $options = $this->features->get_options(['product_id'=>$id]);
         foreach ($options as $o) {
             $this->features->update_option($new_id, $o->feature_id, $o->value);
         }
@@ -611,18 +627,18 @@ class Products extends Axora
             $this->add_related_product2($new_id, $r->related_id);
         }
 
-
         return $new_id;
     }
 
     /**
      * @param  array $product_id
+     *
      * @return array|bool
      */
-    public function get_related_products($product_id = array())
+    public function get_related_products($product_id = [])
     {
         if (empty($product_id)) {
-            return array();
+            return [];
         }
 
         $product_id_filter = $this->db->placehold('AND product_id in(?@)', (array)$product_id);
@@ -636,17 +652,19 @@ class Products extends Axora
                                         ORDER BY position");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param  array $product_id
+     *
      * @return array|bool
      */
-    public function get_related_products2($product_id = array())
+    public function get_related_products2($product_id = [])
     {
         if (empty($product_id)) {
-            return array();
+            return [];
         }
 
         $product_id_filter = $this->db->placehold('AND product_id in(?@)', (array)$product_id);
@@ -660,6 +678,7 @@ class Products extends Axora
                                         ORDER BY position");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -669,6 +688,7 @@ class Products extends Axora
      * @param int $product_id
      * @param int $related_id
      * @param int $position
+     *
      * @return mixed
      */
     public function add_related_product($product_id, $related_id, $position=0)
@@ -678,6 +698,7 @@ class Products extends Axora
                                             related_id=?, 
                                             position=?", $product_id, $related_id, $position);
         $this->db->query($query);
+
         return $related_id;
     }
 
@@ -687,6 +708,7 @@ class Products extends Axora
      * @param int $product_id
      * @param int $related_id
      * @param int $position
+     *
      * @return mixed
      */
     public function add_related_product2($product_id, $related_id, $position=0)
@@ -696,6 +718,7 @@ class Products extends Axora
                                             related_id=?, 
                                             position=?", $product_id, $related_id, $position);
         $this->db->query($query);
+
         return $related_id;
     }
 
@@ -731,9 +754,10 @@ class Products extends Axora
 
     /**
      * @param  array $filter
+     *
      * @return array|bool
      */
-    public function get_images($filter = array())
+    public function get_images($filter = [])
     {
         $product_id_filter = '';
         $group_by = '';
@@ -743,7 +767,7 @@ class Products extends Axora
         }
 
         // images
-       $this->db->query("SELECT i.id, 
+        $this->db->query("SELECT i.id, 
                                 i.product_id, 
                                 i.name, 
                                 i.filename, 
@@ -753,12 +777,14 @@ class Products extends Axora
                             $product_id_filter 
                         $group_by 
                         ORDER BY i.product_id, i.position");
+
         return $this->db->results();
     }
 
     /**
      * @param  $product_id
      * @param  $filename
+     *
      * @return bool|mixed|object|string
      */
     public function add_image($product_id, $filename)
@@ -773,12 +799,14 @@ class Products extends Axora
             $query = $this->db->placehold('UPDATE __images SET position=id WHERE id=?', $id);
             $this->db->query($query);
         }
+
         return($id);
     }
 
     /**
      * @param $id
      * @param $image
+     *
      * @return mixed
      */
     public function update_image($id, $image)
@@ -823,6 +851,7 @@ class Products extends Axora
      * Следующий товар
      *
      * @param  int $id
+     *
      * @return bool|object|string
      */
     public function get_next_product($id)
@@ -853,13 +882,14 @@ class Products extends Axora
 										LIMIT 1', $position, $category_id);
         $this->db->query($query);
 
-        return $this->get_product((integer)$this->db->result('id'));
+        return $this->get_product((int)$this->db->result('id'));
     }
 
     /**
      * Предыдущий товар
      *
      * @param  int $id
+     *
      * @return bool|object|string
      */
     public function get_prev_product($id)
@@ -889,16 +919,15 @@ class Products extends Axora
 										ORDER BY p.position DESC 
 										LIMIT 1', $position, $category_id);
         $this->db->query($query);
+
         return $this->get_product((int)$this->db->result('id'));
     }
 
-
-
-    public function renders($filter = array())
+    public function renders($filter = [])
     {
         $filter['visible'] = 1;
 
-        $products = array();
+        $products = [];
         foreach ($this->get_products($filter) as $p) {
             $products[$p->id] = $p;
         }
@@ -908,9 +937,9 @@ class Products extends Axora
                 $product->comments_count = 0;
                 $product->price = 0;
                 $product->compare_price = 0;
-                $product->variants = array();
-                $product->images = array();
-                $product->properties = array();
+                $product->variants = [];
+                $product->images = [];
+                $product->properties = [];
             }
 
             $this->db->query("
@@ -928,7 +957,7 @@ class Products extends Axora
                 $products[$comment->object_id]->comments_count = $comment->comments_count;
             }
 
-            $variants = $this->variants->get_variants(array('product_id' => $products_ids));
+            $variants = $this->variants->get_variants(['product_id' => $products_ids]);
 
             foreach ($variants as &$variant) {
                 if (empty($products[$variant->product_id]->price)) {
@@ -942,7 +971,7 @@ class Products extends Axora
                 }
             }
 
-            $images = $this->products->get_images(array('product_id' => $products_ids));
+            $images = $this->products->get_images(['product_id' => $products_ids]);
             foreach ($images as $image) {
                 $products[$image->product_id]->images[] = $image;
             }
@@ -959,12 +988,6 @@ class Products extends Axora
             }
         }
 
-
         return $products;
     }
-
-
-
-
-
 }

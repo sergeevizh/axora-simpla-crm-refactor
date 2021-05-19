@@ -2,10 +2,9 @@
 
 namespace App\Api;
 
-
 class Favorites extends Axora
 {
-    public function get_awaiting($filter = array())
+    public function get_awaiting($filter = [])
     {
         $filter_user_id = '';
         $filter_product_id = '';
@@ -19,7 +18,7 @@ class Favorites extends Axora
         }
 
         if (!$filter_user_id && $filter_product_id) {
-            return array();
+            return [];
         }
 
         $this->db->query("SELECT * 
@@ -28,6 +27,7 @@ class Favorites extends Axora
                             $filter_user_id
                             $filter_product_id
                             ORDER BY date");
+
         return $this->db->results();
     }
 
@@ -39,6 +39,7 @@ class Favorites extends Axora
         }
 
         $this->db->query("INSERT INTO _favorites SET ?%", $awaiting);
+
         return $this->db->insert_id();
     }
 
@@ -48,5 +49,4 @@ class Favorites extends Axora
             $this->db->query("DELETE FROM __users_favorites WHERE id = ? LIMIT 1", intval($id));
         }
     }
-
 }

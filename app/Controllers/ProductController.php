@@ -12,30 +12,25 @@ class ProductController extends Controller
             return false;
         }
 
-
-
-
         // Выбираем товар из базы
         $product = $this->products->get_product((string)$product_url);
         if (empty($product) || (!$product->visible && empty($_SESSION['admin']))) {
             return false;
         }
-        
-          $documents = $this->document->get($product->id);
-        $this->design->assign('documents',$documents);
+
+        $documents = $this->document->get($product->id);
+        $this->design->assign('documents', $documents);
 
         $rating = $this->rating->calculateRating($product->id);
-        $this->design->assign('in_product_page_rating',$rating);
+        $this->design->assign('in_product_page_rating', $rating);
 
-        $product->images = $this->products->get_images(array('product_id'=>$product->id));
+        $product->images = $this->products->get_images(['product_id'=>$product->id]);
         $product->image = reset($product->images);
 
-        $variants = array();
-        foreach ($this->variants->get_variants(array('product_id'=>$product->id)) as $v) {
+        $variants = [];
+        foreach ($this->variants->get_variants(['product_id'=>$product->id]) as $v) {
             $variants[$v->id] = $v;
-
         }
-
 
         $product->variants = $variants;
 
@@ -46,7 +41,7 @@ class ProductController extends Controller
             $product->variant = reset($variants);
         }
 
-        $product->features = $this->features->get_product_options(array('product_id'=>$product->id));
+        $product->features = $this->features->get_product_options(['product_id'=>$product->id]);
 
         // Автозаполнение имени для формы комментария
         if (!empty($this->user)) {
@@ -97,18 +92,18 @@ class ProductController extends Controller
         }
 
         // Связанные товары
-        $related_ids = array();
+        $related_ids = [];
         foreach ($this->products->get_related_products($product->id) as $p) {
             $related_ids[] = $p->related_id;
         }
         if (!empty($related_ids)) {
-            $products = $this->products->get_products_compile(array('id'=>$related_ids, 'limit' => count($related_ids), 'in_stock'=>1, 'visible'=>1));
+            $products = $this->products->get_products_compile(['id'=>$related_ids, 'limit' => count($related_ids), 'in_stock'=>1, 'visible'=>1]);
 
             $this->design->assign('related_products', $products);
         }
 
         // Отзывы о товаре
-        $comments = $this->comments->get_comments(array('type'=>'product', 'object_id'=>$product->id, 'approved'=>1, 'ip'=>$_SERVER['REMOTE_ADDR']));
+        $comments = $this->comments->get_comments(['type'=>'product', 'object_id'=>$product->id, 'approved'=>1, 'ip'=>$_SERVER['REMOTE_ADDR']]);
 
         // Соседние товары
         $this->design->assign('next_product', $this->products->get_next_product($product->id));
@@ -119,7 +114,7 @@ class ProductController extends Controller
         $this->design->assign('comments', $comments);
 
         // Категория и бренд товара
-        $product->categories = $this->categories->get_categories(array('product_id'=>$product->id));
+        $product->categories = $this->categories->get_categories(['product_id'=>$product->id]);
         $this->design->assign('brand', $this->brands->get_brand(intval($product->brand_id)));
         $this->design->assign('category', reset($product->categories));
 
@@ -140,6 +135,7 @@ class ProductController extends Controller
         $this->design->assign('meta_title', $product->meta_title);
         $this->design->assign('meta_keywords', $product->meta_keywords);
         $this->design->assign('meta_description', $product->meta_description);
+
         return $this->design->fetch('product.tpl');
     }
 }

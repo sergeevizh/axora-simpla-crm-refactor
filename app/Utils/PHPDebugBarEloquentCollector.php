@@ -5,8 +5,6 @@ namespace App\Utils;
 use App\DB;
 use DebugBar\DataCollector\PDO\PDOCollector;
 use DebugBar\DataCollector\PDO\TraceablePDO;
-use Illuminate\Database\Capsule\Manager;
-use PDO;
 use Psr\Container\ContainerInterface;
 
 class PHPDebugBarEloquentCollector extends PDOCollector
@@ -41,17 +39,17 @@ class PHPDebugBarEloquentCollector extends PDOCollector
     // Override
     public function getWidgets()
     {
-        return array(
-            "eloquent" => array(
+        return [
+            "eloquent" => [
                 "icon" => "inbox",
                 "widget" => "PhpDebugBar.Widgets.SQLQueriesWidget",
                 "map" => "eloquent_pdo",
                 "default" => "[]"
-            ),
-            "eloquent:badge" => array(
+            ],
+            "eloquent:badge" => [
                 "map" => "eloquent_pdo.nb_statements",
                 "default" => 0
-            )
-        );
+            ]
+        ];
     }
 }

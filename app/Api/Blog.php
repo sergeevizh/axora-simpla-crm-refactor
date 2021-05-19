@@ -4,12 +4,12 @@ namespace App\Api;
 
 class Blog extends Axora
 {
-
     /**
      * Функция возвращает пост по его id или url
      * (в зависимости от типа аргумента, int - id, string - url)
      *
      * @param  int $id
+     *
      * @return object|false
      */
     public function get_post($id)
@@ -35,18 +35,19 @@ class Blog extends Axora
 										LIMIT 1");
         if ($this->db->query($query)) {
             return $this->db->result();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Функция возвращает массив постов, удовлетворяющих фильтру
      *
      * @param  array $filter
+     *
      * @return array|bool
      */
-    public function get_posts($filter = array())
+    public function get_posts($filter = [])
     {
         // По умолчанию
         $limit = 1000;
@@ -100,6 +101,7 @@ class Blog extends Axora
 										$sql_limit");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
@@ -107,9 +109,10 @@ class Blog extends Axora
      * Функция вычисляет количество постов, удовлетворяющих фильтру
      *
      * @param  array $filter
+     *
      * @return int|bool
      */
-    public function count_posts($filter = array())
+    public function count_posts($filter = [])
     {
         $post_id_filter = '';
         $visible_filter = '';
@@ -139,13 +142,14 @@ class Blog extends Axora
 
         if ($this->db->query($query)) {
             return $this->db->result('count');
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  object $post
+     *
      * @return bool|int
      */
     public function add_post($post)
@@ -160,9 +164,9 @@ class Blog extends Axora
 
         if (!$this->db->query($query)) {
             return false;
-        } else {
-            return $this->db->insert_id();
         }
+
+        return $this->db->insert_id();
     }
 
     /**
@@ -170,12 +174,14 @@ class Blog extends Axora
      *
      * @param  int $id
      * @param  array|object $post
+     *
      * @return int
      */
     public function update_post($id, $post)
     {
         $query = $this->db->placehold("UPDATE __blog SET ?% WHERE id IN( ?@ ) LIMIT ?", $post, (array)$id, count((array)$id));
         $this->db->query($query);
+
         return $id;
     }
 
@@ -183,12 +189,12 @@ class Blog extends Axora
      * Удалить пост
      *
      * @param  int $id
+     *
      * @return bool
      */
     public function delete_post($id)
     {
         if (!empty($id)) {
-
             $this->delete_image($id);
 
             $query = $this->db->placehold("DELETE FROM __blog WHERE id=? LIMIT 1", intval($id));
@@ -199,6 +205,7 @@ class Blog extends Axora
                 }
             }
         }
+
         return false;
     }
 
@@ -225,6 +232,7 @@ class Blog extends Axora
      * Следующий пост
      *
      * @param  int $id
+     *
      * @return object|bool
      */
     public function get_next_post($id)
@@ -232,22 +240,27 @@ class Blog extends Axora
         $this->db->query("SELECT date FROM __blog WHERE id=? LIMIT 1", $id);
         $date = $this->db->result('date');
 
-        $this->db->query("(SELECT id FROM __blog WHERE date=? AND id>? AND visible ORDER BY id LIMIT 1)
+        $this->db->query(
+            "(SELECT id FROM __blog WHERE date=? AND id>? AND visible ORDER BY id LIMIT 1)
 								UNION
 							(SELECT id FROM __blog WHERE date>? AND visible ORDER BY date, id LIMIT 1)",
-                            $date, $id, $date);
+            $date,
+            $id,
+            $date
+        );
         $next_id = $this->db->result('id');
         if ($next_id) {
             return $this->get_post(intval($next_id));
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Предыдущий пост
      *
      * @param  int $id
+     *
      * @return object|bool
      */
     public function get_prev_post($id)
@@ -255,15 +268,19 @@ class Blog extends Axora
         $this->db->query("SELECT date FROM __blog WHERE id=? LIMIT 1", $id);
         $date = $this->db->result('date');
 
-        $this->db->query("(SELECT id FROM __blog WHERE date=? AND id<? AND visible ORDER BY id DESC LIMIT 1)
+        $this->db->query(
+            "(SELECT id FROM __blog WHERE date=? AND id<? AND visible ORDER BY id DESC LIMIT 1)
 								UNION
 							(SELECT id FROM __blog WHERE date<? AND visible ORDER BY date DESC, id DESC LIMIT 1)",
-                            $date, $id, $date);
+            $date,
+            $id,
+            $date
+        );
         $prev_id = $this->db->result('id');
         if ($prev_id) {
             return $this->get_post(intval($prev_id));
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

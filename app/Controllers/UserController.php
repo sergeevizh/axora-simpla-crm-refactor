@@ -15,7 +15,6 @@ class UserController extends Controller
     private $container;
     private $design;
     private $userDBRepository;
-
     protected $middleware = ['auth'];
 
     public function __construct(ContainerInterface $container)
@@ -42,7 +41,6 @@ class UserController extends Controller
 
     public function update(Request $request, Session $session)
     {
-
         $validation = makeValidation(
             $this->container->get(Validator::class),
             $request,

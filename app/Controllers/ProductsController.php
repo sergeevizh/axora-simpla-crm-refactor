@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 class ProductsController extends Controller
 {
-
     public function fetch()
     {
 
@@ -16,12 +15,11 @@ class ProductsController extends Controller
         $brand_url       = $this->request->get('brand');
         $brand_ids       = $this->request->get('b');
 
-        $filter = array();
+        $filter = [];
         $filter['visible'] = 1;
 
         // Если задан бренд, выберем его из базы
         if (!empty($brand_url) && !is_array($brand_url)) {
-
             $brand = $this->brands->get_brand((string)$brand_url);
 
             if (empty($brand)) {
@@ -33,11 +31,10 @@ class ProductsController extends Controller
             $filter['brand_id'] = $brand_url;
         }
 
-
-        if(!empty($brand_ids)){
+        if (!empty($brand_ids)) {
             $filter['brand_id'] = $brand_ids;
         }
-        if(!empty($this->request->get('discounted', 'int'))){
+        if (!empty($this->request->get('discounted', 'int'))) {
             $filter['discounted'] = 1;
         }
         // Выберем текущую категорию
@@ -91,11 +88,11 @@ class ProductsController extends Controller
 
         // Свойства товаров
         if (!empty($category)) {
-            $features = array();
-            foreach ($this->features->get_features(array(
+            $features = [];
+            foreach ($this->features->get_features([
                 'category_id' => $category->id,
                 'in_filter' => 1
-            )) as $feature) {
+            ]) as $feature) {
                 $features[$feature->id] = $feature;
                 if (($val = $this->request->get($feature->id)) != '') {
                     if ($val[0] != '') {
@@ -127,7 +124,6 @@ class ProductsController extends Controller
 
                 // в этой групе есть чекнутый фильтер
                 if ($features[$option->feature_id]->active) {
-
                     if (in_array($option->value, $filter['features'][$option->feature_id])) {
                         $option->checked = true;
                         $option->disabled = false;
@@ -136,9 +132,9 @@ class ProductsController extends Controller
                         $temp_filter = $filter;
                         $temp_filter['features'][$option->feature_id] = (array)$option->value;
                         $option->count = '+'.$this->products->count_products($temp_filter);
-                        if((int)$option->count > 0){
+                        if ((int)$option->count > 0) {
                             $option->disabled = false;
-                        }else{
+                        } else {
                             $option->disabled = true;
                             $option->count = '';
                         }
@@ -149,10 +145,11 @@ class ProductsController extends Controller
                     $temp_filter = $filter;
                     $temp_filter['features'][$option->feature_id] = (array)$option->value;
                     $option->count = $this->products->count_products($temp_filter);
-                    if((int)$option->count > 0)
+                    if ((int)$option->count > 0) {
                         $option->disabled = false;
-                    else
+                    } else {
                         $option->disabled = true;
+                    }
                     unset($temp_filter);
                     $option->checked = false;
                 }
@@ -167,7 +164,6 @@ class ProductsController extends Controller
             }
 
             $this->design->assign('features', $features);
-
 
             // $this->design->assign('prices', $this->products->prices_products(array('visible' => 1, 'category_id' => $filter['category_id'])));
         }
@@ -210,11 +206,10 @@ class ProductsController extends Controller
 
         $this->design->assign('products', $products);
 
-
         // Выбираем бренды, они нужны нам в шаблоне
         if (!empty($category)) {
-            $brands = array();
-            foreach ($this->brands->get_brands(array('category_id' => $category->children, 'visible' => 1)) as $b) {
+            $brands = [];
+            foreach ($this->brands->get_brands(['category_id' => $category->children, 'visible' => 1]) as $b) {
                 if (!empty($filter['brand_id']) && in_array($b->id, (array)$filter['brand_id'])) {
                     $b->checked = true;
                 } else {
@@ -224,23 +219,17 @@ class ProductsController extends Controller
             }
             $category->brands = $brands;
         } elseif (!empty($type) && !isset($brand)) {
-
             $results_categories = $this->categories->getCategoriesByProductType($type);
             $this->design->assign('results_categories', $results_categories);
             $this->design->assign('type', $type);
-
         }
-
-
 
         // Устанавливаем мета-теги в зависимости от запроса
         if (!empty($tag)) {
             $this->design->assign('meta_title', $tag->meta_title);
             $this->design->assign('meta_keywords', $tag->meta_keywords);
             $this->design->assign('meta_description', $tag->meta_description);
-
-
-        } else if ($this->page) {
+        } elseif ($this->page) {
             $this->design->assign('meta_title', $this->page->meta_title);
             $this->design->assign('meta_keywords', $this->page->meta_keywords);
             $this->design->assign('meta_description', $this->page->meta_description);
@@ -249,7 +238,6 @@ class ProductsController extends Controller
             $this->design->assign('meta_keywords', $category->meta_keywords);
             $this->design->assign('meta_description', $category->meta_description);
         } elseif (isset($brand)) {
-
             $results_categories = $this->brands->getCategoriesByBrand($brand->id);
             foreach ($results_categories as &$u) {
                 $u->url .= '?b[]=' . $u->brand_id;

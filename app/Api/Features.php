@@ -6,16 +6,16 @@ class Features extends Axora
 {
     /**
      * @param array $filter
+     *
      * @return array|false
      */
-    public function get_features($filter = array())
+    public function get_features($filter = [])
     {
         $category_id_filter = '';
         $in_filter_filter = '';
         $id_filter = '';
 
         if (isset($filter['category_id'])) {
-
             $show_in_product_filter = '';
 
             if (isset($filter['show_in_product'])) {
@@ -53,11 +53,13 @@ class Features extends Axora
                                             $id_filter
                                         ORDER BY f.position");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param int $id
+     *
      * @return false|object
      */
     public function get_feature($id)
@@ -72,22 +74,23 @@ class Features extends Axora
 										WHERE f.id=?
 										LIMIT 1', $id);
         $this->db->query($query);
+
         return $this->db->result();
     }
 
     /**
      * @param int $id
+     *
      * @return array|false
      */
     public function get_feature_categories($id)
     {
-
-
         $query = $this->db->placehold("SELECT cf.category_id
 										FROM __categories_features cf
 										WHERE cf.feature_id = ?										
 										", $id);
         $this->db->query($query);
+
         return $this->db->results('category_id');
     }
 
@@ -98,12 +101,13 @@ class Features extends Axora
 										WHERE cf.feature_id = ?										
 										", $id);
         $this->db->query($query);
+
         return $this->db->results();
     }
 
-
     /**
      * @param array|object $feature
+     *
      * @return mixed
      */
     public function add_feature($feature)
@@ -114,18 +118,21 @@ class Features extends Axora
 
         $query = $this->db->placehold("UPDATE __features SET position=id WHERE id=? LIMIT 1", $id);
         $this->db->query($query);
+
         return $id;
     }
 
     /**
      * @param  $id
      * @param  $feature
+     *
      * @return mixed
      */
     public function update_feature($id, $feature)
     {
         $query = $this->db->placehold("UPDATE __features SET ?% WHERE id IN(?@) LIMIT ?", (array)$feature, (array)$id, count((array)$id));
         $this->db->query($query);
+
         return $id;
     }
 
@@ -158,13 +165,13 @@ class Features extends Axora
      * @param int $product_id
      * @param int $feature_id
      * @param string $value
+     *
      * @return mixed
      */
     public function update_option($product_id, $feature_id, $value, $position = 0)
     {
         if ($value != '') {
             $query = $this->db->placehold('REPLACE INTO __options SET value=?, product_id=?, feature_id=?, position=?', $value, intval($product_id), intval($feature_id), $position);
-
         } else {
             $query = $this->db->placehold('DELETE FROM __options WHERE feature_id=? AND product_id=?', intval($feature_id), intval($product_id));
         }
@@ -182,8 +189,6 @@ class Features extends Axora
         $this->db->query($query);
     }
 
-
-
     public function update_feature_categories($id, $categories, $data)
     {
         $id = intval($id);
@@ -191,18 +196,13 @@ class Features extends Axora
 //        $query = $this->db->placehold('DELETE FROM __categories_features WHERE feature_id=?', $id);
 //        $this->db->query($query);
 
-
         if (is_array($categories)) {
-
             foreach ($categories as $category) {
-
-
                 $query = $this->db->placehold("SELECT * FROM __categories_features WHERE feature_id=$id AND category_id=$category");
                 $this->db->query($query);
                 $featureCategory = $this->db->result();
 
                 if ($featureCategory) {
-
                     $query = $this->db->placehold("UPDATE __categories_features SET ?% WHERE feature_id=$id AND category_id=$category", (array)$data);
 //                    var_dump($query);die;
                     $this->db->query($query);
@@ -218,9 +218,10 @@ class Features extends Axora
 
     /**
      * @param array $filter
+     *
      * @return array|false
      */
-    public function get_options($filter = array())
+    public function get_options($filter = [])
     {
         $feature_id_filter = '';
         $product_id_filter = '';
@@ -231,7 +232,7 @@ class Features extends Axora
         $features_filter = '';
 
         if (empty($filter['feature_id']) && empty($filter['product_id'])) {
-            return array();
+            return [];
         }
 
         if (isset($filter['feature_id'])) {
@@ -264,7 +265,6 @@ class Features extends Axora
                     }
                 }*/
 
-
         $query = $this->db->placehold("SELECT po.feature_id, po.value
 										FROM __options po
 										$visible_filter
@@ -279,11 +279,13 @@ class Features extends Axora
 										ORDER BY po.value=0, -po.value DESC, po.value");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param array|int $product_id
+     *
      * @return array|false
      */
     public function get_product_options($product_id)
@@ -300,40 +302,7 @@ class Features extends Axora
 										ORDER BY po.position, f.position", (array)$product_id);
 
         $this->db->query($query);
+
         return $this->db->results();
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -9,7 +9,6 @@ class Register extends Axora implements IAjaxRequest
     public function boot()
     {
         if ($this->request->method('post')) {
-
             $name = $this->request->post('name');
             $email = $this->request->post('email');
             $password = $this->request->post('password');

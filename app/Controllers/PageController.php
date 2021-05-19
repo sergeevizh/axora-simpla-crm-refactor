@@ -22,8 +22,8 @@ class PageController extends Controller
 
         if (file_exists($this->config->root_dir . '/design/' . $this->settings->theme . '/html/page_' . $page->url . '.tpl')) {
             return $this->design->fetch('page_' . $page->url . '.tpl');
-        } else {
-            return $this->design->fetch('page.tpl');
         }
+
+        return $this->design->fetch('page.tpl');
     }
 }

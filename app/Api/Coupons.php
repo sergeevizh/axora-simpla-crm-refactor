@@ -4,12 +4,12 @@ namespace App\Api;
 
 class Coupons extends Axora
 {
-
     /**
      * Функция возвращает купон по его id или url
      * (в зависимости от типа аргумента, int - id, string - code)
      *
      * @param  int $id
+     *
      * @return bool|object|string
      */
     public function get_coupon($id)
@@ -34,18 +34,19 @@ class Coupons extends Axora
 										LIMIT 1");
         if ($this->db->query($query)) {
             return $this->db->result();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Функция возвращает массив купонов, удовлетворяющих фильтру
      *
      * @param  array $filter
+     *
      * @return array|bool
      */
-    public function get_coupons($filter = array())
+    public function get_coupons($filter = [])
     {
         // По умолчанию
         $limit = 1000;
@@ -75,8 +76,6 @@ class Coupons extends Axora
             }
         }
 
-
-
         $query = $this->db->placehold("SELECT c.id, 
                                               c.code, 
                                               c.value, 
@@ -94,17 +93,18 @@ class Coupons extends Axora
 										$sql_limit", $this->settings->date_format);
 
         $this->db->query($query);
+
         return $this->db->results();
     }
-
 
     /**
      * Функция вычисляет количество постов, удовлетворяющих фильтру
      *
      * @param  array $filter
+     *
      * @return bool|object|string
      */
-    public function count_coupons($filter = array())
+    public function count_coupons($filter = [])
     {
         $coupon_id_filter = '';
         $valid_filter = '';
@@ -125,15 +125,16 @@ class Coupons extends Axora
 
         if ($this->db->query($query)) {
             return $this->db->result('count');
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * Создание купона
      *
      * @param  array|object $coupon
+     *
      * @return int|false
      */
     public function add_coupon($coupon)
@@ -156,6 +157,7 @@ class Coupons extends Axora
      *
      * @param  int $id
      * @param  array|object $coupon
+     *
      * @return bool|int
      */
     public function update_coupon($id, $coupon)
@@ -164,14 +166,15 @@ class Coupons extends Axora
         if (!$this->db->query($query)) {
             return false;
         }
+
         return $id;
     }
-
 
     /**
      * Удалить купон
      *
      * @param  int $id
+     *
      * @return bool
      */
     public function delete_coupon($id)
@@ -182,6 +185,7 @@ class Coupons extends Axora
                 return true;
             }
         }
+
         return false;
     }
 }

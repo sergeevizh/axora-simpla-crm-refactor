@@ -4,8 +4,7 @@ namespace App\Api;
 
 class Compares extends Axora
 {
-
-    protected $ids = array();
+    protected $ids = [];
     protected $keySession = 'compares_ids';
 
     public function __construct()
@@ -32,7 +31,6 @@ class Compares extends Axora
 
         // Если товар существует, добавим его в корзину
         if (!empty($product)) {
-
             array_unshift($this->ids, $product->id);
             $this->ids = array_unique($this->ids);
 
@@ -45,9 +43,9 @@ class Compares extends Axora
 
     public function delete($product_id)
     {
-        if(in_array((int)$product_id, $this->ids, true)){
+        if (in_array((int)$product_id, $this->ids, true)) {
             foreach ($this->ids as $k=>$id) {
-                if($id === $product_id){
+                if ($id === $product_id) {
                     unset($this->ids[$k]);
                 }
             }

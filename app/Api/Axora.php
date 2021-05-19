@@ -4,6 +4,7 @@ namespace App\Api;
 
 /**
  * Class Axora
+ *
  * @property Request $request
  * @property Database $db
  * @property Settings $settings
@@ -34,7 +35,7 @@ namespace App\Api;
  */
 class Axora
 {
-    private $modelsMap = array(
+    private $modelsMap = [
         'config' => Config::class,
         'request' => Request::class,
         'db' => Database::class,
@@ -63,9 +64,9 @@ class Axora
         'rating' => Rating::class,
         'document' => Document::class,
         'tags' => Tags::class,
-    );
+    ];
 
-    private static $objects = array();
+    private static $objects = [];
 
     public function __construct()
     {
@@ -75,6 +76,7 @@ class Axora
      * Магический метод, создает нужный объект API
      *
      * @param $name
+     *
      * @return mixed|null
      */
     public function __get($name)

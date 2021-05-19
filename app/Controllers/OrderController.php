@@ -7,26 +7,21 @@ class OrderController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->design->smarty->registerPlugin("function", "checkout_form", array($this, 'checkout_form'));
+        $this->design->smarty->registerPlugin("function", "checkout_form", [$this, 'checkout_form']);
     }
-
 
     public function fetch()
     {
         // Скачивание файла
         if ($this->request->get('file')) {
             return $this->download();
-        } else {
-            return $this->fetch_order();
-
         }
 
-
+        return $this->fetch_order();
     }
 
     public function fetch_order()
     {
-
         if ($url = $this->request->get('url', 'string')) {
             $order = $this->orders->get_order((string)$url);
         } elseif (!empty($_SESSION['order_id'])) {
@@ -39,33 +34,29 @@ class OrderController extends Controller
             return false;
         }
 
-        $purchases = $this->orders->get_purchases(array('order_id' => intval($order->id)));
+        $purchases = $this->orders->get_purchases(['order_id' => intval($order->id)]);
         if (!$purchases) {
             return false;
         }
         if ($this->request->method('post')) {
-
             if ($payment_method_id = $this->request->post('payment_method_id', 'integer')) {
-                $this->orders->update_order($order->id, array('payment_method_id' => $payment_method_id));
-                $order = $this->orders->get_order((integer)$order->id);
+                $this->orders->update_order($order->id, ['payment_method_id' => $payment_method_id]);
+                $order = $this->orders->get_order((int)$order->id);
             } elseif (isset($_POST['reset_payment_method'])) {
-
-                $this->orders->update_order($order->id, array('payment_method_id' => null));
-                $order = $this->orders->get_order((integer)$order->id);
-
+                $this->orders->update_order($order->id, ['payment_method_id' => null]);
+                $order = $this->orders->get_order((int)$order->id);
             }
         }
-       
-        $products_ids = array();
+
+        $products_ids = [];
         foreach ($purchases as $purchase) {
             $products_ids[] = $purchase->product_id;
         }
 
-        $products = $this->products->get_products_compile(array('id' => $products_ids, 'limit' => count($products_ids)));
+        $products = $this->products->get_products_compile(['id' => $products_ids, 'limit' => count($products_ids)]);
 
         foreach ($purchases as &$purchase) {
             if (!empty($products[$purchase->product_id])) {
-
                 $purchase->product = $products[$purchase->product_id];
 
                 if (!empty($products[$purchase->product_id]->variants[$purchase->variant_id])) {
@@ -83,19 +74,16 @@ class OrderController extends Controller
 
         // Способ оплаты
         if ($order->payment_method_id) {
-
             $payment_method = $this->payment->get_payment_method($order->payment_method_id);
             $this->design->assign('payment_method', $payment_method);
         }
 
         // Варианты оплаты
-        $payment_methods = $this->payment->get_payment_methods(array('delivery_id' => $order->delivery_id, 'enabled' => 1));
+        $payment_methods = $this->payment->get_payment_methods(['delivery_id' => $order->delivery_id, 'enabled' => 1]);
         $this->design->assign('payment_methods', $payment_methods);
-
 
         // Все валюты
         $this->design->assign('all_currencies', $this->money->get_currencies());
-
 
         // Выводим заказ
         return $this->design->fetch('order.tpl');
@@ -135,16 +123,15 @@ class OrderController extends Controller
 
     public function checkout_form($params, $smarty)
     {
-
         $module_name = preg_replace("/[^A-Za-z0-9]+/", "", $params['module']);
 
         $form = '';
         if (!empty($module_name) && is_file("payment/$module_name/$module_name.php")) {
-
             $module = '\Payment\\' .$module_name . '\\' . $module_name;
             $module = new $module();
             $form = $module->checkout_form($params['order_id'], $params['button_text']);
         }
+
         return $form;
     }
 }

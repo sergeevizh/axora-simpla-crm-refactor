@@ -4,7 +4,7 @@ namespace App\Api;
 
 class Banners extends Axora
 {
-    public $types = array(
+    public $types = [
         'slider' => 1,
         'main' => 2,
 
@@ -13,8 +13,8 @@ class Banners extends Axora
         'cart' => 5,
         'users' => 6,
         'events' => 3*/
-    );
-    public $typesNames = array(
+    ];
+    public $typesNames = [
         1 => 'На главной слайдер',
         2 => 'На главной',
 
@@ -23,20 +23,20 @@ class Banners extends Axora
         3 => 'События',
         6 => 'Личный кабинет',
         5 => 'В корзине'*/
-    );
+    ];
 
     public function get($id)
     {
-
         $query = $this->db->placehold("SELECT ba.*
 										FROM __banners ba
 										WHERE ba.id = ?
 										LIMIT 1", intval($id));
         $this->db->query($query);
+
         return $this->db->result();
     }
 
-    public function gets($filter = array())
+    public function gets($filter = [])
     {
 
         // По умолчанию
@@ -55,12 +55,11 @@ class Banners extends Axora
             $visible_filter = $this->db->placehold('AND ba.visible=?', intval($filter['visible']));
         }
         if (isset($filter['type'])) {
-            if(is_int($filter['type'])) {
+            if (is_int($filter['type'])) {
                 $type_filter = $this->db->placehold('AND ba.type=?', intval($filter['type']));
             } elseif (is_string($filter['type'])) {
                 $type_filter = $this->db->placehold('AND ba.type=?', $this->types[$filter['type']]);
             }
-
         }
 
         $query = $this->db->placehold("SELECT ba.*
@@ -73,25 +72,26 @@ class Banners extends Axora
 										ORDER BY ba.position
 										");
         $this->db->query($query);
+
         return $this->db->results();
     }
 
-    public function count($filter = array())
+    public function count($filter = [])
     {
-/*        $visible_filter = '';
-        $group_by = '';
+        /*        $visible_filter = '';
+                $group_by = '';
 
-        if (!empty($filter['id'])) {
-            $id_filter = $this->db->placehold('AND ba.id in(?@)', (array)$filter['id']);
-        }
+                if (!empty($filter['id'])) {
+                    $id_filter = $this->db->placehold('AND ba.id in(?@)', (array)$filter['id']);
+                }
 
-        if (isset($filter['visible'])) {
-            $visible_filter = $this->db->placehold('AND ba.visible=?', intval($filter['visible']));
-        }
+                if (isset($filter['visible'])) {
+                    $visible_filter = $this->db->placehold('AND ba.visible=?', intval($filter['visible']));
+                }
 
 
-        $this->db->query($query);
-        return $this->db->result('count');*/
+                $this->db->query($query);
+                return $this->db->result('count');*/
     }
 
     public function add($banner)
@@ -111,13 +111,12 @@ class Banners extends Axora
     {
         $query = $this->db->placehold("UPDATE __banners SET ?% WHERE id=? LIMIT 1", $banners, intval($id));
         $this->db->query($query);
+
         return $id;
     }
 
-
     public function delete($id)
     {
-
         if (!empty($id)) {
             $this->delete_image($id);
             $query = $this->db->placehold("DELETE FROM __banners WHERE id=? LIMIT 1", intval($id));

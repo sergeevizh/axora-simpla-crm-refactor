@@ -6,7 +6,6 @@ use stdClass;
 
 class Cart extends Axora
 {
-
     /**
      * Функция возвращает корзину
      *
@@ -15,22 +14,21 @@ class Cart extends Axora
     public function get_cart()
     {
         $cart = new stdClass();
-        $cart->purchases = array();
+        $cart->purchases = [];
         $cart->total_price = 0;
         $cart->total_products = 0;
         $cart->coupon = null;
         $cart->discount = 0;
         $cart->coupon_discount = 0;
 
-
         // Берем из сессии список variant_id=>amount
         if (!empty($_SESSION['shopping_cart'])) {
             $session_items = $_SESSION['shopping_cart'];
 
-            $variants = $this->variants->get_variants(array('id'=>array_keys($session_items)));
+            $variants = $this->variants->get_variants(['id'=>array_keys($session_items)]);
             if (!empty($variants)) {
-                $items = array();
-                $products_ids = array();
+                $items = [];
+                $products_ids = [];
                 foreach ($variants as $variant) {
                     $items[$variant->id] = new stdClass();
                     $items[$variant->id]->variant = $variant;
@@ -38,7 +36,7 @@ class Cart extends Axora
                     $products_ids[] = $variant->product_id;
                 }
 
-                $products = $this->products->get_products_compile(array('id'=>$products_ids, 'limit' => count($products_ids)));
+                $products = $this->products->get_products_compile(['id'=>$products_ids, 'limit' => count($products_ids)]);
 
                 foreach ($items as $variant_id=>$item) {
                     $purchase = null;
@@ -68,7 +66,7 @@ class Cart extends Axora
                     if ($cart->coupon && $cart->coupon->valid && $cart->total_price>=$cart->coupon->min_order_price) {
                         if ($cart->coupon->type=='absolute') {
                             // Абсолютная скидка не более суммы заказа
-                            $cart->coupon_discount = $cart->total_price>$cart->coupon->value?$cart->coupon->value:$cart->total_price;
+                            $cart->coupon_discount = $cart->total_price>$cart->coupon->value ? $cart->coupon->value : $cart->total_price;
                             $cart->total_price = max(0, $cart->total_price-$cart->coupon->value);
                         } else {
                             $cart->coupon_discount = $cart->total_price * ($cart->coupon->value)/100;
@@ -82,41 +80,39 @@ class Cart extends Axora
         }
 
         // Способы доставки
-        $deliveries = $this->delivery->get_deliveries(array('enabled' => 1));
+        $deliveries = $this->delivery->get_deliveries(['enabled' => 1]);
         //  получаем выбранную доставку или берем первую
-        if ( isset($_COOKIE['delivery_id'])) {
+        if (isset($_COOKIE['delivery_id'])) {
             $cart->сurrent_delivery =  $this->delivery->get_delivery($_COOKIE['delivery_id']);
         } else {
             $cart->сurrent_delivery = $deliveries[0];
             $expire = time() + 60 * 60 * 24;
-            setcookie('delivery_id', $deliveries[0]->id ,$expire,'/');
+            setcookie('delivery_id', $deliveries[0]->id, $expire, '/');
         }
 
         $cart = $this->calculateCartTotalPriceIncludingDelivery($cart);
 
-
         return $cart;
     }
 
-
     /**
      *   просчитываем общую сумму с учетом доствки
+     *
      * @param $cart
      * @param $delivery
+     *
      * @return mixed
      */
     public function calculateCartTotalPriceIncludingDelivery($cart)
     {
         //  просчитываем общую сумму с учетом доствки
-        if ($cart->сurrent_delivery ) {
-            if($cart->total_price <  $cart->сurrent_delivery->free_from) {
+        if ($cart->сurrent_delivery) {
+            if ($cart->total_price <  $cart->сurrent_delivery->free_from) {
                 $cart->total_price_without_delivery = $cart->total_price;
                 $cart->total_price +=  $cart->сurrent_delivery->price;
                 $cart->delivery_price =  $cart->сurrent_delivery->price;
             }
         }
-
-
 
         return $cart;
     }
@@ -168,7 +164,6 @@ class Cart extends Axora
             $_SESSION['shopping_cart'][$variant_id] = intval($amount);
         }
     }
-
 
     /**
      * Удаление товара из корзины

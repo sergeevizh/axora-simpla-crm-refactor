@@ -6,6 +6,7 @@ class Feedbacks extends Axora
 {
     /**
      * @param  int $id
+     *
      * @return object|false
      */
     public function get_feedback($id)
@@ -22,17 +23,18 @@ class Feedbacks extends Axora
 
         if ($this->db->query($query)) {
             return $this->db->result();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
      * @param  array $filter
      * @param  bool $new_on_top
+     *
      * @return array|bool
      */
-    public function get_feedbacks($filter = array(), $new_on_top = false)
+    public function get_feedbacks($filter = [], $new_on_top = false)
     {
         // По умолчанию
         $limit = 0;
@@ -77,14 +79,16 @@ class Feedbacks extends Axora
                                         ORDER BY f.id $sort $sql_limit");
 
         $this->db->query($query);
+
         return $this->db->results();
     }
 
     /**
      * @param  array $filter
+     *
      * @return bool|object|string
      */
-    public function count_feedbacks($filter = array())
+    public function count_feedbacks($filter = [])
     {
         $keyword_filter = '';
 
@@ -102,15 +106,14 @@ class Feedbacks extends Axora
             $keyword_filter = "AND is_read=". $filter['read'];
         }
 
-
         $query = $this->db->placehold("SELECT COUNT(DISTINCT f.id) AS count
 										FROM __feedbacks f 
 										WHERE 1 
 										$keyword_filter");
         $this->db->query($query);
+
         return $this->db->result('count');
     }
-
 
     public function count_not_read()
     {
@@ -118,33 +121,37 @@ class Feedbacks extends Axora
 										FROM __feedbacks f 
 										WHERE is_read=0");
         $this->db->query($query);
+
         return $this->db->result('count');
     }
 
-
-
     /**
      * @param  array|object $feedback
+     *
      * @return bool|mixed
      */
     public function add_feedback($feedback)
     {
-        $query = $this->db->placehold('INSERT INTO __feedbacks
+        $query = $this->db->placehold(
+            'INSERT INTO __feedbacks
 		    SET ?%,
 		    date = NOW()',
-        $feedback);
+            $feedback
+        );
 
         if (!$this->db->query($query)) {
             return false;
         }
 
         $id = $this->db->insert_id();
+
         return $id;
     }
 
     /**
      * @param  int $id
      * @param  object $feedback
+     *
      * @return mixed
      */
     public function update_feedback($id, $feedback)
@@ -157,17 +164,19 @@ class Feedbacks extends Axora
         }
         $query = $this->db->placehold("UPDATE __feedbacks SET ?% $date_query WHERE id IN( ?@ ) LIMIT 1", $feedback, (array)$id);
         $this->db->query($query);
+
         return $id;
     }
 
-    public function markAsRead($ids) {
+    public function markAsRead($ids)
+    {
         $query = $this->db->placehold("UPDATE __feedbacks SET is_read=1  WHERE id IN( ?@ ) LIMIT 1", (array)$ids);
         $this->db->query($query);
-
     }
 
     /**
      * @param  int $id
+     *
      * @return void
      */
     public function delete_feedback($id)

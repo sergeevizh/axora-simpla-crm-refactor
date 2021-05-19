@@ -23,7 +23,6 @@ class MainController extends Controller
         $this->bannerDBRepository = $container->get(IBannerDBRepository::class);
         $this->productDBRepository = $container->get(IProductDBRepository::class);
         $this->blogDBRepository = $container->get(IBlogDBRepository::class);
-
     }
 
     public function index()
